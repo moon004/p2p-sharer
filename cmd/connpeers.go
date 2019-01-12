@@ -17,34 +17,30 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/moon004/p2p-sharer/tools"
 	"github.com/spf13/cobra"
 )
 
-// connpeersCmd represents the connpeers command
-var connpeersCmd = &cobra.Command{
-	Use:   "connpeers",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+// ConnPeers represents the connpeers comman
+func ConnPeers() *cobra.Command {
+	var connpeersCmd = &cobra.Command{
+		Use:   "connpeers",
+		Short: "Connect to an ipfs peer",
+		Long: `Connect to a peer so that future request of an ipfs object would be faster.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("connpeers called")
-	},
-}
+	Peer's ID can be found using the command 'ipfs id'.
 
-func init() {
-	rootCmd.AddCommand(connpeersCmd)
+	You can use it like so:
 
-	// Here you will define your flags and configuration settings.
+		` + tools.Args0() + ` 'Peer's IPFS ID'
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// connpeersCmd.PersistentFlags().String("foo", "", "A help for foo")
+	Examples:
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// connpeersCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+		` + tools.Args0() + ` Qma1dYuhcKgaUP5nooYaHUTQR3phBm6igbbDt9V6Viqo1z`,
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println("connpeers called")
+		},
+	}
+
+	return connpeersCmd
 }

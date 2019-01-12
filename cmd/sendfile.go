@@ -21,20 +21,20 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// AddFile represents the addfile command
-func AddFile() *cobra.Command {
-	var addfileCmd = &cobra.Command{
-		Use:   "addfile",
-		Short: "Add a file or folder to local node",
-		Long: `Add a local file or folder to your local node
-		
-Examples:
+// SendFile represents the sendfile command
+func SendFile() *cobra.Command {
+	var sendfileCmd = &cobra.Command{
+		Use:   "sendfile",
+		Short: "Send your file to your peers",
+		Long: `Send local file to your peers via peers ID
+
+	Examples:
 	
-	` + tools.Args0() + ` MyFiles.pdf`,
+		` + tools.Args0() + ` 'Peers ID'`,
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("addfile called")
+			fmt.Println("sendfile called")
 		},
 	}
 
-	return addfileCmd
+	return sendfileCmd
 }
