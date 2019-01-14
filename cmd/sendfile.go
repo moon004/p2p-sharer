@@ -16,8 +16,11 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/moon004/p2p-sharer/tools"
+
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -28,13 +31,36 @@ func SendFile() *cobra.Command {
 		Short: "Send your file to your peers",
 		Long: `Send local file to your peers via peers ID
 
-	Examples:
+Examples:
 	
-		` + tools.Args0() + ` 'Peers ID'`,
+	` + tools.Args0() + ` -f Example.pdf -p 'Peers ID'`,
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("sendfile called")
+			allflags := cmd.Flags()
+			if allflags.Changed("peerID") == false ||
+				allflags.Changed("filename") == false {
+
+				tools.OnError(errors.New("Must provide value for all the required flag"))
+				return
+			}
+			sendfile(cmd, args)
 		},
 	}
 
+	sendfileCmd.Flags().SortFlags = false
+	sendfileCmd.Flags().StringP("peerID", "p", "", "Receiver's ID (required)")
+	sendfileCmd.Flags().StringP("filename", "f", "", "Name of the file to send (required)")
 	return sendfileCmd
+}
+
+func sendfile(cmd *cobra.Command, args []string) {
+	ID, _ := cmd.Flags().GetString("peerID")
+	fn, _ := cmd.Flags().GetString("filename")
+
+	// Add the localfile to ipfs
+	f, err := os.Open(fn)
+	if err != nil {
+		tools.OnError(err)
+	}
+
+	fmt.Println("f", f, ID)
 }

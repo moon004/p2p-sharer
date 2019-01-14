@@ -1,36 +1,41 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"time"
 
 	"github.com/moon004/p2p-sharer/cnf"
+	"github.com/moon004/p2p-sharer/tools"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
-var rootCmd = &cobra.Command{
-	Use:   "p2p-sharer",
-	Short: "Simplify the file transfer protocol to other machine via IPFS protocol",
-	Long: `
+var (
+	rootCmd = &cobra.Command{
+		Use:   "p2p-sharer",
+		Short: "Simplify the file transfer protocol to other machine via IPFS protocol",
+		Long: `
 This CLI allows you to transfer your local file to your peers via IPFS protocol
 
 Make sure you host your own node before using this CLI by invoking:
 
-	ipfs daemon`,
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		startTime = time.Now()
-	},
-	PersistentPostRun: func(cmd *cobra.Command, args []string) {
-		if viper.GetBool("verbose") {
-			timeSpent := int64(time.Now().Sub(startTime) / time.Millisecond)
-			log.Printf("%s", timeSpent)
-		}
-	},
-}
+		ipfs daemon`,
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			startTime = time.Now()
+		},
+		PersistentPostRun: func(cmd *cobra.Command, args []string) {
+			if viper.GetBool("verbose") {
+				timeSpent := int64(time.Since(startTime) / time.Millisecond)
+				tools.Info(fmt.Sprintf("Time Spent: %vms", timeSpent))
+			}
+		},
+	}
 
-var startTime time.Time
+	startTime time.Time
+)
+
 var Verbose bool
 
 func Execute() {
@@ -43,9 +48,11 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 	rootCmd.Flags().SortFlags = false
-	rootCmd.Flags().BoolP("verbose", "v", false, "output verbose")
-	rootCmd.Flags().BoolP("debug", "d", false, "trigger debuging mode")
+	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "output verbose")
+	rootCmd.PersistentFlags().BoolP("debug", "d", false, "trigger debuging mode")
 
+	viper.BindPFlag("verbose", rootCmd.PersistentFlags().Lookup("verbose"))
+	viper.BindPFlag("debug", rootCmd.PersistentFlags().Lookup("debug"))
 	rootCmd.AddCommand(
 		SendFile(),
 		AddFile(),

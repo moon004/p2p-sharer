@@ -47,4 +47,11 @@ func OnError(err error) {
 			log.Print(fmt.Sprintf("%s %v", red("error:"), err))
 		}
 	}
+	os.Exit(1)
+}
+
+func Info(v ...interface{}) {
+	green := color.New(color.FgGreen).SprintFunc()
+	msg := fmt.Sprintln(v...)
+	fmt.Print(fmt.Sprintf("%s %s", green("info:"), msg))
 }
