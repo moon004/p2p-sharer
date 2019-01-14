@@ -1,0 +1,26 @@
+Initializing daemon...
+go-ipfs version: 0.4.19-dev-c17aaa6e2
+Repo version: 7
+System version: amd64/windows
+Golang version: go1.11
+Swarm listening on /ip4/10.0.75.1/tcp/4001
+Swarm listening on /ip4/127.0.0.1/tcp/4001
+Swarm listening on /ip4/169.254.177.103/tcp/4001
+Swarm listening on /ip4/169.254.224.22/tcp/4001
+Swarm listening on /ip4/169.254.67.94/tcp/4001
+Swarm listening on /ip4/172.23.21.209/tcp/4001
+Swarm listening on /ip4/192.168.1.100/tcp/4001
+Swarm listening on /ip6/::1/tcp/4001
+Swarm listening on /p2p-circuit
+Swarm announcing /ip4/10.0.75.1/tcp/4001
+Swarm announcing /ip4/127.0.0.1/tcp/4001
+Swarm announcing /ip4/169.254.177.103/tcp/4001
+Swarm announcing /ip4/169.254.224.22/tcp/4001
+Swarm announcing /ip4/169.254.67.94/tcp/4001
+Swarm announcing /ip4/172.23.21.209/tcp/4001
+Swarm announcing /ip4/192.168.1.100/tcp/4001
+Swarm announcing /ip6/::1/tcp/4001
+API server listening on /ip4/0.0.0.0/tcp/5001
+WebUI: http://0.0.0.0:5001/webui
+Gateway (readonly) server listening on /ip4/127.0.0.1/tcp/8080
+Daemon is ready
