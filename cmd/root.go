@@ -54,9 +54,9 @@ func init() {
 	viper.BindPFlag("verbose", rootCmd.PersistentFlags().Lookup("verbose"))
 	viper.BindPFlag("debug", rootCmd.PersistentFlags().Lookup("debug"))
 	rootCmd.AddCommand(
-		SendFile(),
-		AddFile(),
+		UpFile(),
 		ConnPeers(),
+		RetrieveObject(),
 		FriendList(),
 		AddFriend(),
 	)

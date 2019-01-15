@@ -15,19 +15,23 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
 
+	"github.com/ipfs/go-ipfs/core"
+	"github.com/ipfs/go-ipfs/core/coreunix"
+	"github.com/ipfs/go-ipfs/core/coreapi/interface"
+	"github.com/moon004/p2p-sharer/cnf"
 	"github.com/moon004/p2p-sharer/tools"
-
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
-// SendFile represents the sendfile command
-func SendFile() *cobra.Command {
-	var sendfileCmd = &cobra.Command{
-		Use:   "sendfile",
+// UpFile represents the UpFile command
+func UpFile() *cobra.Command {
+	var upfileCmd = &cobra.Command{
+		Use:   "upfile",
 		Short: "Send your file to your peers",
 		Long: `Send local file to your peers via peers ID
 
@@ -42,25 +46,42 @@ Examples:
 				tools.OnError(errors.New("Must provide value for all the required flag"))
 				return
 			}
-			sendfile(cmd, args)
+			upfile(cmd, args)
 		},
 	}
 
-	sendfileCmd.Flags().SortFlags = false
-	sendfileCmd.Flags().StringP("peerID", "p", "", "Receiver's ID (required)")
-	sendfileCmd.Flags().StringP("filename", "f", "", "Name of the file to send (required)")
-	return sendfileCmd
+	upfileCmd.Flags().SortFlags = false
+	upfileCmd.Flags().StringP("peerID", "p", "", "Receiver's ID (required)")
+	upfileCmd.Flags().StringP("filename", "f", "", "Name of the file to send (required)")
+	return upfileCmd
 }
 
-func sendfile(cmd *cobra.Command, args []string) {
+func upfile(cmd *cobra.Command, args []string) {
 	ID, _ := cmd.Flags().GetString("peerID")
 	fn, _ := cmd.Flags().GetString("filename")
 
 	// Add the localfile to ipfs
-	f, err := os.Open(fn)
-	if err != nil {
-		tools.OnError(err)
-	}
+	var n *core.IpfsNode
+	hash := AddFile(n, fn)
+	fmt.Println("file hash:", hash)
+	// dht provide <hashkey>
+	api := coreapi.NewCoreAPI(node)
+	path, err := iface.ParsePath(hash)
+	tools.OnError(err)
+	
+	err = api.Dht().Provide(ctx, path)
+	tools.OnError(err)
+}
 
-	fmt.Println("f", f, ID)
+// AddFile just add local file to local node and pin it
+func AddFile(node *core.IpfsNode, file string) string {
+	ctx, cancel := context.WithTimeout(context.Background(), cnf.Timeout)
+	defer cancel()
+	f, err := os.Open(file)
+	tools.OnError(err)
+
+	hash, err := coreunix.AddWithContext(ctx, node, f)
+	tools.OnError(err)
+
+	return hash
 }
