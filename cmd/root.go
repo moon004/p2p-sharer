@@ -18,10 +18,8 @@ var (
 		Short: "Simplify the file transfer protocol to other machine via IPFS protocol",
 		Long: `
 This CLI allows you to transfer your local file to your peers via IPFS protocol
-
-Make sure you host your own node before using this CLI by invoking:
-
-		ipfs daemon`,
+Also it enables you to add your peers to your friend list and make consequent
+file transfer more easy and faster.`,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			startTime = time.Now()
 		},
@@ -50,13 +48,12 @@ func init() {
 	rootCmd.Flags().SortFlags = false
 	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "output verbose")
 	rootCmd.PersistentFlags().BoolP("debug", "d", false, "trigger debuging mode")
-
 	viper.BindPFlag("verbose", rootCmd.PersistentFlags().Lookup("verbose"))
 	viper.BindPFlag("debug", rootCmd.PersistentFlags().Lookup("debug"))
 	rootCmd.AddCommand(
 		UpFile(),
 		ConnPeers(),
-		RetrieveObject(),
+		GetObject(),
 		FriendList(),
 		AddFriend(),
 	)

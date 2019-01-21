@@ -15,27 +15,28 @@
 package cmd
 
 import (
-	"github.com/ipfs/go-ipfs/core/coreapi"
-	"github.com/ipfs/go-ipfs/core/coreapi/interface"
+	"fmt"
+
 	"github.com/moon004/p2p-sharer/tools"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
-func RetrieveObject() *cobra.Command {
-	var retobjectCmd = &cobra.Command{
+func GetObject() *cobra.Command {
+	var getobject = &cobra.Command{
 		Use:   "retobject",
 		Short: "Retrieve file from peers",
 		Long: `Retrieve file from peers and save to local directory
 
 Examples:
 	
-	` + tools.Args0() + ` -h QmSgc9oPMqBppGyM3TWc7NZF11bwH8o3CDekd6pAYGJF8X -p 'Peers ID'`,
+	` + tools.Args0() + ` QmSgc9oPMqBppGyM3TWc7NZF11bwH8o3CDekd6pAYGJF8X -p 'Peers ID'`,
+
+		Args: cobra.ExactArgs(1),
+
 		Run: func(cmd *cobra.Command, args []string) {
 			allflags := cmd.Flags()
-			if allflags.Changed("peerID") == false ||
-				allflags.Changed("hash") == false {
-
+			if allflags.Changed("peerID") == false {
 				tools.OnError(errors.New("Must provide value for all the required flag"))
 				return
 			}
@@ -43,21 +44,17 @@ Examples:
 		},
 	}
 
-	retobjectCmd.Flags().SortFlags = false
-	retobjectCmd.Flags().StringP("peerID", "p", "", "Receiver's ID (required)")
-	retobjectCmd.Flags().StringP("hash", "h", "", "Hash of the file to retrieve (required)")
-	return retobjectCmd
+	getobject.Flags().SortFlags = false
+	getobject.Flags().StringP("peerID", "p", "", "Receiver's ID (required)")
+	return getobject
 }
 
 func retobject(cmd *cobra.Command, args []string) {
 	ID, _ := cmd.Flags().GetString("peerID")
-	hash, _ := cmd.Flags().GetString("hash")
+	hash := args[0]
+	fmt.Println(ID, hash)
+	// path, err := iface.ParsePath(hash)
+	// tools.OnError(err)
 
-	path, err := iface.ParsePath(hash)
-	tools.OnError(err)
-
-	api := coreapi.NewCoreAPI(node)
-	err = api.Object().Get(ctx, path)
-	tools.OnError(err)
-
+	// commands.cat(ctx, api, )
 }

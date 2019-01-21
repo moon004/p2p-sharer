@@ -21,7 +21,6 @@ import (
 
 	"github.com/ipfs/go-ipfs/core"
 	"github.com/ipfs/go-ipfs/core/coreunix"
-	"github.com/ipfs/go-ipfs/core/coreapi/interface"
 	"github.com/moon004/p2p-sharer/cnf"
 	"github.com/moon004/p2p-sharer/tools"
 	"github.com/pkg/errors"
@@ -59,18 +58,7 @@ Examples:
 func upfile(cmd *cobra.Command, args []string) {
 	ID, _ := cmd.Flags().GetString("peerID")
 	fn, _ := cmd.Flags().GetString("filename")
-
-	// Add the localfile to ipfs
-	var n *core.IpfsNode
-	hash := AddFile(n, fn)
-	fmt.Println("file hash:", hash)
-	// dht provide <hashkey>
-	api := coreapi.NewCoreAPI(node)
-	path, err := iface.ParsePath(hash)
-	tools.OnError(err)
-	
-	err = api.Dht().Provide(ctx, path)
-	tools.OnError(err)
+	fmt.Println(ID, fn)
 }
 
 // AddFile just add local file to local node and pin it

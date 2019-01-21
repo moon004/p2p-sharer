@@ -1,0 +1,12 @@
+{
+  "author": "DESKTOP-IBNU8OB\\SiangHwa",
+  "bugs": {},
+  "gx": {},
+  "gxVersion": "0.14.0",
+  "language": "Go",
+  "license": "",
+  "name": "p2p-sharer",
+  "releaseCmd": "git commit -a -m \"gx publish $VERSION\"",
+  "version": "0.0.0"
+}
+
