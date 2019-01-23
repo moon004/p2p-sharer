@@ -31,17 +31,16 @@ import (
 func UpFile() *cobra.Command {
 	var upfileCmd = &cobra.Command{
 		Use:   "upfile",
-		Short: "Send your file to your peers",
-		Long: `Send local file to your peers via peers ID
+		Short: "Add and provide your file to the network",
+		Long: `Add the file to your local node and provide (publish) the file
+to the network so that other nodes are able to retrieve it.
 
 Examples:
 	
-	` + tools.Args0() + ` -f Example.pdf -p 'Peers ID'`,
+	` + tools.Args0() + ` -f Example.pdf`,
 		Run: func(cmd *cobra.Command, args []string) {
 			allflags := cmd.Flags()
-			if allflags.Changed("peerID") == false ||
-				allflags.Changed("filename") == false {
-
+			if allflags.Changed("filename") == false {
 				tools.OnError(errors.New("Must provide value for all the required flag"))
 				return
 			}
@@ -50,15 +49,13 @@ Examples:
 	}
 
 	upfileCmd.Flags().SortFlags = false
-	upfileCmd.Flags().StringP("peerID", "p", "", "Receiver's ID (required)")
 	upfileCmd.Flags().StringP("filename", "f", "", "Name of the file to send (required)")
 	return upfileCmd
 }
 
 func upfile(cmd *cobra.Command, args []string) {
-	ID, _ := cmd.Flags().GetString("peerID")
 	fn, _ := cmd.Flags().GetString("filename")
-	fmt.Println(ID, fn)
+	fmt.Println(fn)
 }
 
 // AddFile just add local file to local node and pin it

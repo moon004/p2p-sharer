@@ -37,6 +37,7 @@ file transfer more easy and faster.`,
 var Verbose bool
 
 func Execute() {
+	fmt.Println("Execute")
 	err := rootCmd.Execute()
 	if err != nil {
 		os.Exit(1)
@@ -48,8 +49,11 @@ func init() {
 	rootCmd.Flags().SortFlags = false
 	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "output verbose")
 	rootCmd.PersistentFlags().BoolP("debug", "d", false, "trigger debuging mode")
+	//									Duration takes int64
+	rootCmd.PersistentFlags().Int64("timeout", cnf.Timeout, "timeout")
 	viper.BindPFlag("verbose", rootCmd.PersistentFlags().Lookup("verbose"))
 	viper.BindPFlag("debug", rootCmd.PersistentFlags().Lookup("debug"))
+
 	rootCmd.AddCommand(
 		UpFile(),
 		ConnPeers(),
@@ -57,9 +61,11 @@ func init() {
 		FriendList(),
 		AddFriend(),
 	)
+	fmt.Println("Init")
 }
 
 func initConfig() {
+	fmt.Println("initConfig")
 	configFile := cnf.ConfigStruct{}
 	file := configFile.ConfigFile()
 	viper.SetConfigType("yaml")
@@ -69,4 +75,5 @@ func initConfig() {
 		log.Println("No config found. Creating new config file")
 		err = configFile.DefaultConfigValue()
 	}
+	viper.ReadInConfig()
 }

@@ -7,7 +7,11 @@ import (
 	"os"
 	"path/filepath"
 
+	"gx/ipfs/QmWGm4AbZEbnmdgVTza52MSNpEmBdFVqzmAysRbjrRyGbH/go-ipfs-cmds"
+
+	"github.com/ipfs/go-ipfs/repo/fsrepo"
 	homedir "github.com/mitchellh/go-homedir"
+	"github.com/moon004/p2p-sharer/ipfs"
 	"github.com/moon004/p2p-sharer/tools"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
@@ -16,11 +20,16 @@ import (
 
 // ConfigStruct the structure of Config File (yaml)
 type ConfigStruct struct {
-	UserLocalID string `yaml:"local_id"`
-	Version     string `yaml:"version"`
-	Verbose     bool   `yaml:"verbose"`
-	Debug       bool   `yaml:"debug"`
+	UserLocalID string       `yaml:"local_id"`
+	IpfsConFile string       `yaml:"ipfs_config_path"`
+	P2pConFile  string       `yaml:"p2p_config_file"`
+	Version     string       `yaml:"version"`
+	Friends     []friendList `yaml:"friend_list"`
+	Verbose     bool         `yaml:"verbose"`
+	Debug       bool         `yaml:"debug"`
 }
+
+type friendList map[string]string
 
 // Reload Read the config file and Unmarshal
 // into the ConfigStruct
@@ -39,19 +48,35 @@ func (c *ConfigStruct) Reload() error {
 
 // ConfigFile is the EXACT directory of the file
 func (c *ConfigStruct) ConfigFile() string {
+	//																	config.yaml
 	return filepath.Join(c.ConfigDir(), ConfigFileName)
 }
 
-// ConfigDir is the directory of the config file
+// ConfigDir is the directory of the config file of p2p-sharer
 func (c *ConfigStruct) ConfigDir() string {
 	p, err := c.Path()
-	if err != nil {
-		log.Fatalf("%+v\n", err)
-	}
+	tools.OnError(err)
 
 	dirname := tools.Args0()
 
 	return filepath.Join(p, "."+dirname)
+}
+
+// IpfsConfDir returns the Ipfs root directory
+// Initialize an ipfs config if it doesn't have one
+func (c *ConfigStruct) IpfsConfDir() string {
+	var req *cmds.Request
+
+	path, err := ipfs.GetRepoPath(req)
+	tools.OnError(err)
+
+	if !fsrepo.IsInitialized(path) {
+		// Init the ipfs config and repo
+		err := ipfs.InitWithDefaults(os.Stdout, path, "")
+		tools.OnError(err)
+	}
+
+	return path
 }
 
 // Path return the home directory of the executor
@@ -63,6 +88,7 @@ func (c *ConfigStruct) Path() (string, error) {
 	return p, nil
 }
 
+// WriteToConfig update the p2p-sharer config file
 func (c *ConfigStruct) WriteToConfig() error {
 	// Write to the config yaml file
 	content, err := yaml.Marshal(c)
@@ -101,17 +127,19 @@ func ReadConFile() *ConfigStruct {
 
 // DefaultConfigValue update the config file with default value
 func (c *ConfigStruct) DefaultConfigValue() error {
+	ipfsFilePath := c.IpfsConfDir()
 	defaultcnf := ConfigStruct{
 		Version:     BaseVersion,
 		Verbose:     false,
 		Debug:       false,
+		Friends:     make([]friendList, 0),
+		IpfsConFile: ipfsFilePath,
+		P2pConFile:  c.ConfigFile(),
 		UserLocalID: c.GetLocalIPFSID(),
 	}
 	err := defaultcnf.WriteToConfig()
 	err = errors.Wrap(err, "error writing default value to config")
-	if err != nil {
-		log.Fatalf("%+v", err)
-	}
+	tools.OnError(err)
 
 	return viper.ReadInConfig()
 }

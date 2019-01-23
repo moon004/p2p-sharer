@@ -2,6 +2,14 @@
   "author": "DESKTOP-IBNU8OB\\SiangHwa",
   "bugs": {},
   "gx": {},
+  "gxDependencies": [
+    {
+      "author": "multiformats",
+      "hash": "QmNTCey11oxhb1AxDnQBRHtdhap6Ctud872NjAYPYYXPuc",
+      "name": "go-multiaddr",
+      "version": "1.4.0"
+    }
+  ],
   "gxVersion": "0.14.0",
   "language": "Go",
   "license": "",
