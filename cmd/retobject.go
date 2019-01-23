@@ -16,10 +16,19 @@ package cmd
 
 import (
 	"fmt"
+	"io"
+	"os"
+	"path/filepath"
 
+	pstore "gx/ipfs/QmPiemjiKBC9VA7vZF82m4x1oygtg2c2YVqag8PX7dN1BD/go-libp2p-peerstore"
+
+	"github.com/ipfs/go-ipfs/core/coreapi"
+	"github.com/moon004/p2p-sharer/friend"
+	"github.com/moon004/p2p-sharer/ipfs"
 	"github.com/moon004/p2p-sharer/tools"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 func GetObject() *cobra.Command {
@@ -36,7 +45,7 @@ Examples:
 
 		Run: func(cmd *cobra.Command, args []string) {
 			allflags := cmd.Flags()
-			if allflags.Changed("peerID") == false {
+			if allflags.Changed("fileName") == false {
 				tools.OnError(errors.New("Must provide value for all the required flag"))
 				return
 			}
@@ -45,14 +54,61 @@ Examples:
 	}
 
 	getobject.Flags().SortFlags = false
-	getobject.Flags().StringP("peerID", "p", "", "Receiver's ID (required)")
+	getobject.Flags().StringP("friendName", "n", "", "Receiver's ID (required)")
+	getobject.Flags().StringP("fileName", "f", "", "The output filename (required)")
 	return getobject
 }
 
 func retobject(cmd *cobra.Command, args []string) {
-	ID, _ := cmd.Flags().GetString("peerID")
+	friendName, _ := cmd.Flags().GetString("friendName")
+	fileName, _ := cmd.Flags().GetString("fileName")
 	hash := args[0]
-	fmt.Println(ID, hash)
+	fmt.Println(friendName, hash)
+
+	node, cancel := tools.NewNodeLoader()
+	defer cancel() // cancel the ctx after operation is done
+	nodeCtx := node.Context()
+	/*
+		1. if got provide friendName, find friendName in config file
+		2. if provided friendName but cant find == Not Provided == Dont Have
+		3. if Dont Have, just dht findprovs, and connect and get <hash>
+		4. If findprovs empty, just get <hash>
+		5. if Have PeerID, connect and get <hash>
+	*/
+	var PeerInfo pstore.PeerInfo
+	// if -n is not empty
+	if friendName != "" {
+		// Acquire the friend's Peer's ID
+		var f friend.FList
+		Flist := f.GetFList()
+		PeerInfo = Flist.Friends[friendName]
+
+		if PeerInfo.ID == "" {
+			// Induce an error message
+			err := errors.Errorf("You have no such friend: %s", friendName)
+			tools.OnError(err) // stop program here and show error
+		}
+		// Do step 5.
+		api, err := coreapi.NewCoreAPI(node)
+		tools.OnError(err)
+
+		err = api.Swarm().Connect(nodeCtx, PeerInfo)
+		tools.OnError(err)
+
+		reader, _, err := ipfs.Cat(nodeCtx, api, hash, 0, -1)
+		tools.OnError(err)
+
+		// Output to .p2p-sharer/storage
+		p2pPath, _ := viper.Get("p2p_config_file").(string)
+		dir, _ := filepath.Split(p2pPath)
+		filePath := filepath.Join(dir, fileName)
+		tmpFile, err := os.Create(filePath)
+		tools.OnError(err)
+
+		size, err := io.Copy(tmpFile, reader)
+		fmt.Printf("Size: %vbyte", size)
+	}
+
 	// path, err := iface.ParsePath(hash)
 	// tools.OnError(err)
 

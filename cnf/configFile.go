@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
+	pstore "gx/ipfs/QmPiemjiKBC9VA7vZF82m4x1oygtg2c2YVqag8PX7dN1BD/go-libp2p-peerstore"
 	"gx/ipfs/QmWGm4AbZEbnmdgVTza52MSNpEmBdFVqzmAysRbjrRyGbH/go-ipfs-cmds"
 
 	"github.com/ipfs/go-ipfs/repo/fsrepo"
@@ -24,12 +25,12 @@ type ConfigStruct struct {
 	IpfsConFile string       `yaml:"ipfs_config_path"`
 	P2pConFile  string       `yaml:"p2p_config_file"`
 	Version     string       `yaml:"version"`
-	Friends     []friendList `yaml:"friend_list"`
+	Friends     []FriendList `yaml:"friend_list"`
 	Verbose     bool         `yaml:"verbose"`
 	Debug       bool         `yaml:"debug"`
 }
 
-type friendList map[string]string
+type FriendList map[string]pstore.PeerInfo
 
 // Reload Read the config file and Unmarshal
 // into the ConfigStruct
@@ -132,7 +133,7 @@ func (c *ConfigStruct) DefaultConfigValue() error {
 		Version:     BaseVersion,
 		Verbose:     false,
 		Debug:       false,
-		Friends:     make([]friendList, 0),
+		Friends:     make([]FriendList, 0),
 		IpfsConFile: ipfsFilePath,
 		P2pConFile:  c.ConfigFile(),
 		UserLocalID: c.GetLocalIPFSID(),

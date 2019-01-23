@@ -16,10 +16,11 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 	"os"
 
 	"github.com/ipfs/go-ipfs/core"
+	"github.com/ipfs/go-ipfs/core/coreapi"
+	"github.com/ipfs/go-ipfs/core/coreapi/interface"
 	"github.com/ipfs/go-ipfs/core/coreunix"
 	"github.com/moon004/p2p-sharer/cnf"
 	"github.com/moon004/p2p-sharer/tools"
@@ -49,17 +50,29 @@ Examples:
 	}
 
 	upfileCmd.Flags().SortFlags = false
-	upfileCmd.Flags().StringP("filename", "f", "", "Name of the file to send (required)")
+	upfileCmd.Flags().StringP("filename", "f", "", "Name of the file to upload (required)")
 	return upfileCmd
 }
 
 func upfile(cmd *cobra.Command, args []string) {
 	fn, _ := cmd.Flags().GetString("filename")
-	fmt.Println(fn)
+
+	node, cancel := tools.NewNodeLoader()
+	defer cancel()
+	nodeCtx := node.Context()
+
+	hashPath := AddFile(node, fn)
+
+	api, err := coreapi.NewCoreAPI(node)
+	tools.OnError(err)
+
+	err = api.Dht().Provide(nodeCtx, hashPath)
+	tools.OnError(err)
+
 }
 
 // AddFile just add local file to local node and pin it
-func AddFile(node *core.IpfsNode, file string) string {
+func AddFile(node *core.IpfsNode, file string) iface.Path {
 	ctx, cancel := context.WithTimeout(context.Background(), cnf.Timeout)
 	defer cancel()
 	f, err := os.Open(file)
@@ -68,5 +81,8 @@ func AddFile(node *core.IpfsNode, file string) string {
 	hash, err := coreunix.AddWithContext(ctx, node, f)
 	tools.OnError(err)
 
-	return hash
+	hashPath, err := iface.ParsePath(hash)
+	tools.OnError(err)
+
+	return hashPath
 }
