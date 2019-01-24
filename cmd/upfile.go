@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/ipfs/go-ipfs/core"
@@ -26,6 +27,7 @@ import (
 	"github.com/moon004/p2p-sharer/tools"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // UpFile represents the UpFile command
@@ -55,6 +57,7 @@ Examples:
 }
 
 func upfile(cmd *cobra.Command, args []string) {
+	MyInfo := viper.Get("local_id").(string)
 	fn, _ := cmd.Flags().GetString("filename")
 
 	node, cancel := tools.NewNodeLoader()
@@ -69,6 +72,9 @@ func upfile(cmd *cobra.Command, args []string) {
 	err = api.Dht().Provide(nodeCtx, hashPath)
 	tools.OnError(err)
 
+	fmt.Printf("%s is up! with hash %s\n", fn, hashPath)
+	fmt.Printf("Peers are able to retrieve the file by:\n %s retobject %s -p %s \n",
+		tools.Args0(), hashPath, MyInfo)
 }
 
 // AddFile just add local file to local node and pin it

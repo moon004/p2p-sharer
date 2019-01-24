@@ -39,7 +39,7 @@ func GetObject() *cobra.Command {
 
 Examples:
 	
-	` + tools.Args0() + ` QmSgc9oPMqBppGyM3TWc7NZF11bwH8o3CDekd6pAYGJF8X -p 'Peers ID'`,
+	` + tools.Args0() + ` retobject QmSgc9oPMqBppGyM3TWc7NZF11bwH8o3CDekd6pAYGJF8X -p <Peers Info>`,
 
 		Args: cobra.ExactArgs(1),
 

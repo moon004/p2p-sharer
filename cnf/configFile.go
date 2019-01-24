@@ -10,6 +10,7 @@ import (
 	pstore "gx/ipfs/QmPiemjiKBC9VA7vZF82m4x1oygtg2c2YVqag8PX7dN1BD/go-libp2p-peerstore"
 	"gx/ipfs/QmWGm4AbZEbnmdgVTza52MSNpEmBdFVqzmAysRbjrRyGbH/go-ipfs-cmds"
 
+	"github.com/ipfs/go-ipfs/core/coreapi"
 	"github.com/ipfs/go-ipfs/repo/fsrepo"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/moon004/p2p-sharer/ipfs"
@@ -21,13 +22,13 @@ import (
 
 // ConfigStruct the structure of Config File (yaml)
 type ConfigStruct struct {
-	UserLocalID string       `yaml:"local_id"`
-	IpfsConFile string       `yaml:"ipfs_config_path"`
-	P2pConFile  string       `yaml:"p2p_config_file"`
-	Version     string       `yaml:"version"`
-	Friends     []FriendList `yaml:"friend_list"`
-	Verbose     bool         `yaml:"verbose"`
-	Debug       bool         `yaml:"debug"`
+	UserLocalID *pstore.PeerInfo `yaml:"local_id"`
+	IpfsConFile string           `yaml:"ipfs_config_path"`
+	P2pConFile  string           `yaml:"p2p_config_file"`
+	Version     string           `yaml:"version"`
+	Friends     []FriendList     `yaml:"friend_list"`
+	Verbose     bool             `yaml:"verbose"`
+	Debug       bool             `yaml:"debug"`
 }
 
 type FriendList map[string]pstore.PeerInfo
@@ -154,7 +155,7 @@ type IDRetriever struct {
 }
 
 // GetLocalIPFSID is to get the local node ID
-func (c *ConfigStruct) GetLocalIPFSID() string {
+func (c *ConfigStruct) GetLocalIPFSID() *pstore.PeerInfo {
 	p, _ := c.Path()
 	dir := filepath.Join(p, ".ipfs", "config")
 	jsonData, err := ioutil.ReadFile(dir)
@@ -169,6 +170,18 @@ func (c *ConfigStruct) GetLocalIPFSID() string {
 		err = errors.Wrap(err, "error marshalling ID into json")
 		log.Fatalf("%+v", err)
 	}
+	// Getting the swarm addrs local id
+	node, cancel := tools.NewNodeLoader()
+	defer cancel()
+	nodeCtx := node.Context()
+	api, err := coreapi.NewCoreAPI(node)
+	tools.OnError(err)
 
-	return Retriever.Identity.PeerID
+	maddrs, err := api.Swarm().LocalAddrs(nodeCtx)
+	tools.OnError(err)
+
+	PeerInfo, err := pstore.InfoFromP2pAddr(maddrs[0])
+	tools.OnError(err)
+
+	return PeerInfo
 }
