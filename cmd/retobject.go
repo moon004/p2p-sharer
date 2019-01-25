@@ -23,6 +23,7 @@ import (
 	pstore "gx/ipfs/QmPiemjiKBC9VA7vZF82m4x1oygtg2c2YVqag8PX7dN1BD/go-libp2p-peerstore"
 
 	"github.com/ipfs/go-ipfs/core/coreapi"
+	d "github.com/moon004/p2p-sharer/debug"
 	"github.com/moon004/p2p-sharer/friend"
 	"github.com/moon004/p2p-sharer/ipfs"
 	"github.com/moon004/p2p-sharer/tools"
@@ -46,7 +47,7 @@ Examples:
 		Run: func(cmd *cobra.Command, args []string) {
 			allflags := cmd.Flags()
 			if allflags.Changed("fileName") == false {
-				tools.OnError(errors.New("Must provide value for all the required flag"))
+				d.OnError(errors.New("Must provide value for all the required flag"))
 				return
 			}
 			retobject(cmd, args)
@@ -65,7 +66,7 @@ func retobject(cmd *cobra.Command, args []string) {
 	hash := args[0]
 	fmt.Println(friendName, hash)
 
-	node, cancel := tools.NewNodeLoader()
+	node, cancel := NewNodeLoader()
 	defer cancel() // cancel the ctx after operation is done
 	nodeCtx := node.Context()
 	/*
@@ -86,31 +87,31 @@ func retobject(cmd *cobra.Command, args []string) {
 		if PeerInfo.ID == "" {
 			// Induce an error message
 			err := errors.Errorf("You have no such friend: %s", friendName)
-			tools.OnError(err) // stop program here and show error
+			d.OnError(err) // stop program here and show error
 		}
 		// Do step 5.
 		api, err := coreapi.NewCoreAPI(node)
-		tools.OnError(err)
+		d.OnError(err)
 
 		err = api.Swarm().Connect(nodeCtx, PeerInfo)
-		tools.OnError(err)
+		d.OnError(err)
 
 		reader, _, err := ipfs.Cat(nodeCtx, api, hash, 0, -1)
-		tools.OnError(err)
+		d.OnError(err)
 
 		// Output to .p2p-sharer/storage
 		p2pPath, _ := viper.Get("p2p_config_file").(string)
 		dir, _ := filepath.Split(p2pPath)
 		filePath := filepath.Join(dir, fileName)
 		tmpFile, err := os.Create(filePath)
-		tools.OnError(err)
+		d.OnError(err)
 
 		size, err := io.Copy(tmpFile, reader)
 		fmt.Printf("Size: %vbyte", size)
 	}
 
 	// path, err := iface.ParsePath(hash)
-	// tools.OnError(err)
+	// d.OnError(err)
 
 	// commands.cat(ctx, api, )
 }

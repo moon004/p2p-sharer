@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 
 	"github.com/moon004/p2p-sharer/cnf"
-	"github.com/moon004/p2p-sharer/tools"
+	d "github.com/moon004/p2p-sharer/debug"
 	"github.com/spf13/viper"
 	yaml "gopkg.in/yaml.v2"
 )
@@ -16,10 +16,10 @@ type FList struct {
 
 // GetFList returns the FList struct
 func (f *FList) GetFList() *FList {
-	p2pPath := viper.Get("p2p_config_file").(string)
+	p2pPath := viper.Get("friend_list").(string)
 	yamlContent, err := ioutil.ReadFile(p2pPath)
-	tools.OnError(err)
+	d.OnError(err)
 	err = yaml.Unmarshal(yamlContent, f)
-	tools.OnError(err)
+	d.OnError(err)
 	return f
 }

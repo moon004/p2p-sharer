@@ -24,6 +24,7 @@ import (
 	"github.com/ipfs/go-ipfs/core/coreapi/interface"
 	"github.com/ipfs/go-ipfs/core/coreunix"
 	"github.com/moon004/p2p-sharer/cnf"
+	d "github.com/moon004/p2p-sharer/debug"
 	"github.com/moon004/p2p-sharer/tools"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -44,7 +45,7 @@ Examples:
 		Run: func(cmd *cobra.Command, args []string) {
 			allflags := cmd.Flags()
 			if allflags.Changed("filename") == false {
-				tools.OnError(errors.New("Must provide value for all the required flag"))
+				d.OnError(errors.New("Must provide value for all the required flag"))
 				return
 			}
 			upfile(cmd, args)
@@ -60,17 +61,17 @@ func upfile(cmd *cobra.Command, args []string) {
 	MyInfo := viper.Get("local_id").(string)
 	fn, _ := cmd.Flags().GetString("filename")
 
-	node, cancel := tools.NewNodeLoader()
+	node, cancel := NewNodeLoader()
 	defer cancel()
 	nodeCtx := node.Context()
 
 	hashPath := AddFile(node, fn)
 
 	api, err := coreapi.NewCoreAPI(node)
-	tools.OnError(err)
+	d.OnError(err)
 
 	err = api.Dht().Provide(nodeCtx, hashPath)
-	tools.OnError(err)
+	d.OnError(err)
 
 	fmt.Printf("%s is up! with hash %s\n", fn, hashPath)
 	fmt.Printf("Peers are able to retrieve the file by:\n %s retobject %s -p %s \n",
@@ -82,13 +83,13 @@ func AddFile(node *core.IpfsNode, file string) iface.Path {
 	ctx, cancel := context.WithTimeout(context.Background(), cnf.Timeout)
 	defer cancel()
 	f, err := os.Open(file)
-	tools.OnError(err)
+	d.OnError(err)
 
 	hash, err := coreunix.AddWithContext(ctx, node, f)
-	tools.OnError(err)
+	d.OnError(err)
 
 	hashPath, err := iface.ParsePath(hash)
-	tools.OnError(err)
+	d.OnError(err)
 
 	return hashPath
 }

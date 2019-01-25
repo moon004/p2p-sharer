@@ -1,12 +1,17 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
 	"time"
 
+	"github.com/ipfs/go-ipfs/core"
+	"github.com/ipfs/go-ipfs/repo/fsrepo"
 	"github.com/moon004/p2p-sharer/cnf"
+	d "github.com/moon004/p2p-sharer/debug"
+	"github.com/moon004/p2p-sharer/ipfs"
 	"github.com/moon004/p2p-sharer/tools"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -26,7 +31,7 @@ file transfer more easy and faster.`,
 		PersistentPostRun: func(cmd *cobra.Command, args []string) {
 			if viper.GetBool("verbose") {
 				timeSpent := int64(time.Since(startTime) / time.Millisecond)
-				tools.Info(fmt.Sprintf("Time Spent: %vms", timeSpent))
+				d.Info(fmt.Sprintf("Time Spent: %vms", timeSpent))
 			}
 		},
 	}
@@ -56,7 +61,6 @@ func init() {
 
 	rootCmd.AddCommand(
 		UpFile(),
-		ConnPeers(),
 		GetObject(),
 		FriendList(),
 		AddFriend(),
@@ -76,4 +80,26 @@ func initConfig() {
 		err = configFile.DefaultConfigValue()
 	}
 	viper.ReadInConfig()
+}
+
+// NewNodeLoader returns an ipfs node and the context cancel function
+func NewNodeLoader() (*core.IpfsNode, context.CancelFunc) {
+	dur := tools.GetTimeout()
+	ctx, cancel := context.WithTimeout(context.Background(), dur)
+
+	// Invoke LoadPlugins to load plugins into our repo
+	//			"" means load New Plugins
+	_, err := ipfs.LoadPlugins("")
+	d.OnError(err)
+
+	configPath := cnf.IpfsConfDir()
+	repo, err := fsrepo.Open(configPath)
+	d.OnError(err)
+	cfg := &core.BuildCfg{
+		Repo: repo,
+	}
+	node, err := core.NewNode(ctx, cfg)
+	d.OnError(err)
+
+	return node, cancel
 }

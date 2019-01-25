@@ -1,6 +1,7 @@
 package cnf
 
 import (
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"log"
@@ -10,9 +11,11 @@ import (
 	pstore "gx/ipfs/QmPiemjiKBC9VA7vZF82m4x1oygtg2c2YVqag8PX7dN1BD/go-libp2p-peerstore"
 	"gx/ipfs/QmWGm4AbZEbnmdgVTza52MSNpEmBdFVqzmAysRbjrRyGbH/go-ipfs-cmds"
 
+	"github.com/ipfs/go-ipfs/core"
 	"github.com/ipfs/go-ipfs/core/coreapi"
 	"github.com/ipfs/go-ipfs/repo/fsrepo"
 	homedir "github.com/mitchellh/go-homedir"
+	d "github.com/moon004/p2p-sharer/debug"
 	"github.com/moon004/p2p-sharer/ipfs"
 	"github.com/moon004/p2p-sharer/tools"
 	"github.com/pkg/errors"
@@ -51,13 +54,13 @@ func (c *ConfigStruct) Reload() error {
 // ConfigFile is the EXACT directory of the file
 func (c *ConfigStruct) ConfigFile() string {
 	//																	config.yaml
-	return filepath.Join(c.ConfigDir(), ConfigFileName)
+	return filepath.Join(ConfigDir(), ConfigFileName)
 }
 
 // ConfigDir is the directory of the config file of p2p-sharer
-func (c *ConfigStruct) ConfigDir() string {
-	p, err := c.Path()
-	tools.OnError(err)
+func ConfigDir() string {
+	p, err := Path()
+	d.OnError(err)
 
 	dirname := tools.Args0()
 
@@ -66,23 +69,23 @@ func (c *ConfigStruct) ConfigDir() string {
 
 // IpfsConfDir returns the Ipfs root directory
 // Initialize an ipfs config if it doesn't have one
-func (c *ConfigStruct) IpfsConfDir() string {
+func IpfsConfDir() string {
 	var req *cmds.Request
 
 	path, err := ipfs.GetRepoPath(req)
-	tools.OnError(err)
+	d.OnError(err)
 
 	if !fsrepo.IsInitialized(path) {
 		// Init the ipfs config and repo
 		err := ipfs.InitWithDefaults(os.Stdout, path, "")
-		tools.OnError(err)
+		d.OnError(err)
 	}
 
 	return path
 }
 
 // Path return the home directory of the executor
-func (c *ConfigStruct) Path() (string, error) {
+func Path() (string, error) {
 	p, err := homedir.Dir()
 	if err != nil {
 		return "", errors.Wrap(err, "failed to detect homeDir")
@@ -98,8 +101,8 @@ func (c *ConfigStruct) WriteToConfig() error {
 		return errors.Wrap(err, "WriteToConfig marshal failed")
 	}
 
-	if !exist(c.ConfigDir()) {
-		_ = os.Mkdir(c.ConfigDir(), os.ModePerm)
+	if !exist(ConfigDir()) {
+		_ = os.Mkdir(ConfigDir(), os.ModePerm)
 	}
 
 	return ioutil.WriteFile(c.ConfigFile(), content, 0644)
@@ -129,7 +132,7 @@ func ReadConFile() *ConfigStruct {
 
 // DefaultConfigValue update the config file with default value
 func (c *ConfigStruct) DefaultConfigValue() error {
-	ipfsFilePath := c.IpfsConfDir()
+	ipfsFilePath := IpfsConfDir()
 	defaultcnf := ConfigStruct{
 		Version:     BaseVersion,
 		Verbose:     false,
@@ -137,11 +140,11 @@ func (c *ConfigStruct) DefaultConfigValue() error {
 		Friends:     make([]FriendList, 0),
 		IpfsConFile: ipfsFilePath,
 		P2pConFile:  c.ConfigFile(),
-		UserLocalID: c.GetLocalIPFSID(),
+		UserLocalID: GetLocalIPFSID(),
 	}
 	err := defaultcnf.WriteToConfig()
 	err = errors.Wrap(err, "error writing default value to config")
-	tools.OnError(err)
+	d.OnError(err)
 
 	return viper.ReadInConfig()
 }
@@ -155,8 +158,8 @@ type IDRetriever struct {
 }
 
 // GetLocalIPFSID is to get the local node ID
-func (c *ConfigStruct) GetLocalIPFSID() *pstore.PeerInfo {
-	p, _ := c.Path()
+func GetLocalIPFSID() *pstore.PeerInfo {
+	p, _ := Path()
 	dir := filepath.Join(p, ".ipfs", "config")
 	jsonData, err := ioutil.ReadFile(dir)
 	if err != nil {
@@ -171,17 +174,39 @@ func (c *ConfigStruct) GetLocalIPFSID() *pstore.PeerInfo {
 		log.Fatalf("%+v", err)
 	}
 	// Getting the swarm addrs local id
-	node, cancel := tools.NewNodeLoader()
+	node, cancel := NewNodeInit()
 	defer cancel()
 	nodeCtx := node.Context()
 	api, err := coreapi.NewCoreAPI(node)
-	tools.OnError(err)
+	d.OnError(err)
 
 	maddrs, err := api.Swarm().LocalAddrs(nodeCtx)
-	tools.OnError(err)
+	d.OnError(err)
 
 	PeerInfo, err := pstore.InfoFromP2pAddr(maddrs[0])
-	tools.OnError(err)
+	d.OnError(err)
 
 	return PeerInfo
+}
+
+// NewNodeInit initialize NewNode when creating config file
+func NewNodeInit() (*core.IpfsNode, context.CancelFunc) {
+	dur := tools.GetTimeout()
+	ctx, cancel := context.WithTimeout(context.Background(), dur)
+
+	// Invoke LoadPlugins to load plugins into our repo
+	//			"" means load New Plugins
+	_, err := ipfs.LoadPlugins("")
+	d.OnError(err)
+
+	configPath := IpfsConfDir()
+	repo, err := fsrepo.Open(configPath)
+	d.OnError(err)
+	cfg := &core.BuildCfg{
+		Repo: repo,
+	}
+	node, err := core.NewNode(ctx, cfg)
+	d.OnError(err)
+
+	return node, cancel
 }
