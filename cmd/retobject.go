@@ -23,7 +23,7 @@ import (
 	pstore "gx/ipfs/QmPiemjiKBC9VA7vZF82m4x1oygtg2c2YVqag8PX7dN1BD/go-libp2p-peerstore"
 
 	"github.com/ipfs/go-ipfs/core/coreapi"
-	d "github.com/moon004/p2p-sharer/debug"
+	d "github.com/moon004/p2p-sharer/debugs"
 	"github.com/moon004/p2p-sharer/friend"
 	"github.com/moon004/p2p-sharer/ipfs"
 	"github.com/moon004/p2p-sharer/tools"

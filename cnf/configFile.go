@@ -15,7 +15,7 @@ import (
 	"github.com/ipfs/go-ipfs/core/coreapi"
 	"github.com/ipfs/go-ipfs/repo/fsrepo"
 	homedir "github.com/mitchellh/go-homedir"
-	d "github.com/moon004/p2p-sharer/debug"
+	d "github.com/moon004/p2p-sharer/debugs"
 	"github.com/moon004/p2p-sharer/ipfs"
 	"github.com/moon004/p2p-sharer/tools"
 	"github.com/pkg/errors"

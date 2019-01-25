@@ -24,7 +24,7 @@ import (
 	"github.com/ipfs/go-ipfs/core/coreapi/interface"
 	"github.com/ipfs/go-ipfs/core/coreunix"
 	"github.com/moon004/p2p-sharer/cnf"
-	d "github.com/moon004/p2p-sharer/debug"
+	d "github.com/moon004/p2p-sharer/debugs"
 	"github.com/moon004/p2p-sharer/tools"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"

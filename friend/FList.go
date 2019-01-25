@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 
 	"github.com/moon004/p2p-sharer/cnf"
-	d "github.com/moon004/p2p-sharer/debug"
+	d "github.com/moon004/p2p-sharer/debugs"
 	"github.com/spf13/viper"
 	yaml "gopkg.in/yaml.v2"
 )

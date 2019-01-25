@@ -10,7 +10,7 @@ import (
 	"github.com/ipfs/go-ipfs/core"
 	"github.com/ipfs/go-ipfs/repo/fsrepo"
 	"github.com/moon004/p2p-sharer/cnf"
-	d "github.com/moon004/p2p-sharer/debug"
+	d "github.com/moon004/p2p-sharer/debugs"
 	"github.com/moon004/p2p-sharer/ipfs"
 	"github.com/moon004/p2p-sharer/tools"
 	"github.com/spf13/cobra"
