@@ -11,7 +11,7 @@ import (
 
 // FList is the friend list struct
 type FList struct {
-	Friends cnf.FriendList `yaml:"friend_list"`
+	Friends cnf.Friend `yaml:"friend_list"`
 }
 
 // GetFList returns the FList struct

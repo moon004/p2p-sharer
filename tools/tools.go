@@ -1,8 +1,10 @@
 package tools
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 
@@ -32,4 +34,19 @@ func Args0() string {
 // GetTimeout returns the timeout of the of the command
 func GetTimeout() time.Duration {
 	return time.Duration(viper.GetInt64("timeout")) * time.Second
+}
+
+func Regex(option string) (*regexp.Regexp, error) {
+
+	switch option {
+	case "ipfs hash":
+		return regexp.MustCompile(`Qm[a-zA-Z0-9]{44}`), nil
+	case "string input":
+		return regexp.MustCompile(`\w+`), nil
+	case "ipfs address":
+		return regexp.MustCompile(
+			`\/ip4\/\d+\.\d+\.\d+\.\d+\/tcp\/\d+\/ipfs\/Qm[a-zA-Z0-9]{44}`), nil
+	default:
+		return nil, errors.New("invalid option")
+	}
 }

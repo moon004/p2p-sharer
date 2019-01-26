@@ -17,7 +17,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	pstore "gx/ipfs/QmPiemjiKBC9VA7vZF82m4x1oygtg2c2YVqag8PX7dN1BD/go-libp2p-peerstore"
 	"path/filepath"
 
 	d "github.com/moon004/p2p-sharer/debugs"
@@ -70,7 +69,7 @@ func retobject(cmd *cobra.Command, args []string) {
 		4. If findprovs empty, just get <hash>
 		5. if Have PeerID, connect, get <hash>, and cat it
 	*/
-	var PeerInfo pstore.PeerInfo
+	var PeerInfo string
 	sh := NewIpfsAPI()
 	// if -n is NOT empty
 	if friendName != "" {
@@ -79,7 +78,7 @@ func retobject(cmd *cobra.Command, args []string) {
 		Flist := f.GetFList()
 		PeerInfo = Flist.Friends[friendName]
 
-		if PeerInfo.ID == "" {
+		if PeerInfo == "" {
 			// Induce an error message
 			err := errors.Errorf("You have no such friend: %s", friendName)
 			d.OnError(err) // stop program here and show error

@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 
-	pstore "gx/ipfs/QmPiemjiKBC9VA7vZF82m4x1oygtg2c2YVqag8PX7dN1BD/go-libp2p-peerstore"
 	"gx/ipfs/QmWGm4AbZEbnmdgVTza52MSNpEmBdFVqzmAysRbjrRyGbH/go-ipfs-cmds"
 
 	api "github.com/ipfs/go-ipfs-api"
@@ -25,15 +24,16 @@ type ConfigStruct struct {
 	IpfsConFile string        `yaml:"ipfs_config_path"`
 	P2pConFile  string        `yaml:"p2p_config_file"`
 	Version     string        `yaml:"version"`
-	Friends     []FriendList  `yaml:"friend_list"`
+	Friends     []Friend      `yaml:"friend_list"`
 	Verbose     bool          `yaml:"verbose"`
 	Debug       bool          `yaml:"debug"`
 }
 
-type FriendList map[string]pstore.PeerInfo
+// Friend is just a map of string to string
+type Friend map[string]string
 
 // Reload Read the config file and Unmarshal
-// into the ConfigStruct
+// into the ConfigStruct and return the
 func (c *ConfigStruct) Reload() error {
 	content, err := ioutil.ReadFile(c.ConfigFile())
 	if err != nil {
@@ -45,6 +45,38 @@ func (c *ConfigStruct) Reload() error {
 	}
 
 	return nil
+}
+
+//AddFriend append the new friend list and save in the config file
+func (c *ConfigStruct) AddFriend(f Friend) error {
+	// get the old friend list
+	err := c.Reload()
+	if err != nil {
+		return errors.Wrap(err, "error reloading")
+	}
+	// append with a whole new set of NewFriendList
+	c.Friends = append(c.Friends, f)
+	err = c.WriteToConfig()
+	if err != nil {
+		return errors.Wrap(err, "error writing to config")
+	}
+
+	return nil
+}
+
+// WriteToConfig update the p2p-sharer config file
+func (c *ConfigStruct) WriteToConfig() error {
+	// Write to the config yaml file
+	content, err := yaml.Marshal(c)
+	if err != nil {
+		return errors.Wrap(err, "WriteToConfig marshal failed")
+	}
+
+	if !exist(ConfigDir()) {
+		_ = os.Mkdir(ConfigDir(), os.ModePerm)
+	}
+
+	return ioutil.WriteFile(c.ConfigFile(), content, 0644)
 }
 
 // ConfigFile is the EXACT directory of the file
@@ -89,21 +121,6 @@ func Path() (string, error) {
 	return p, nil
 }
 
-// WriteToConfig update the p2p-sharer config file
-func (c *ConfigStruct) WriteToConfig() error {
-	// Write to the config yaml file
-	content, err := yaml.Marshal(c)
-	if err != nil {
-		return errors.Wrap(err, "WriteToConfig marshal failed")
-	}
-
-	if !exist(ConfigDir()) {
-		_ = os.Mkdir(ConfigDir(), os.ModePerm)
-	}
-
-	return ioutil.WriteFile(c.ConfigFile(), content, 0644)
-}
-
 func exist(path string) bool {
 	_, err := os.Stat(path)
 	if err == nil {
@@ -133,7 +150,7 @@ func (c *ConfigStruct) DefaultConfigValue() error {
 		Version:     BaseVersion,
 		Verbose:     false,
 		Debug:       false,
-		Friends:     make([]FriendList, 0),
+		Friends:     make([]Friend, 0),
 		IpfsConFile: ipfsFilePath,
 		P2pConFile:  c.ConfigFile(),
 		UserLocalID: GetLocalIPFSID(),

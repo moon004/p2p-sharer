@@ -17,7 +17,10 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/moon004/p2p-sharer/cnf"
+	d "github.com/moon004/p2p-sharer/debugs"
 	"github.com/moon004/p2p-sharer/tools"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -30,9 +33,33 @@ func AddFriend() *cobra.Command {
 
 Example:
 	` + tools.Args0() + ` Qma1dYuhcKgaUP5nooYaHUTQR3phBm6igbbDt9V6Viqo1z 'Friend's name'`,
+
+		Args: cobra.ExactArgs(2),
+
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("addfriend called")
+			addfriend(cmd, args)
 		},
 	}
 	return addfriendCmd
+}
+
+func addfriend(cmd *cobra.Command, args []string) {
+	friendID := args[0]
+	friendName := args[1]
+
+	fmt.Println(friendID, friendName)
+
+	var friend cnf.Friend
+	var cfgStruct cnf.ConfigStruct
+	// regex check for name and Addresses
+	strInput, _ := tools.Regex("string input")
+	ipfsHash, _ := tools.Regex("ipfs address")
+
+	if strInput.MatchString(friendName) && ipfsHash.MatchString(friendID) {
+		friend[friendName] = friendID
+		err := cfgStruct.AddFriend(friend)
+		d.OnError(err)
+	} else {
+		d.OnError(errors.New("Invalid friend name format or invalid ipfs hash"))
+	}
 }
