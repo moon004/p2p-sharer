@@ -2,9 +2,7 @@ package cnf
 
 import (
 	"context"
-	"encoding/json"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 
@@ -25,13 +23,13 @@ import (
 
 // ConfigStruct the structure of Config File (yaml)
 type ConfigStruct struct {
-	UserLocalID *pstore.PeerInfo `yaml:"local_id"`
-	IpfsConFile string           `yaml:"ipfs_config_path"`
-	P2pConFile  string           `yaml:"p2p_config_file"`
-	Version     string           `yaml:"version"`
-	Friends     []FriendList     `yaml:"friend_list"`
-	Verbose     bool             `yaml:"verbose"`
-	Debug       bool             `yaml:"debug"`
+	// UserLocalID *pstore.PeerInfo `yaml:"local_id"`
+	IpfsConFile string       `yaml:"ipfs_config_path"`
+	P2pConFile  string       `yaml:"p2p_config_file"`
+	Version     string       `yaml:"version"`
+	Friends     []FriendList `yaml:"friend_list"`
+	Verbose     bool         `yaml:"verbose"`
+	Debug       bool         `yaml:"debug"`
 }
 
 type FriendList map[string]pstore.PeerInfo
@@ -140,7 +138,7 @@ func (c *ConfigStruct) DefaultConfigValue() error {
 		Friends:     make([]FriendList, 0),
 		IpfsConFile: ipfsFilePath,
 		P2pConFile:  c.ConfigFile(),
-		UserLocalID: GetLocalIPFSID(),
+		// UserLocalID: GetLocalIPFSID(),
 	}
 	err := defaultcnf.WriteToConfig()
 	err = errors.Wrap(err, "error writing default value to config")
@@ -159,20 +157,20 @@ type IDRetriever struct {
 
 // GetLocalIPFSID is to get the local node ID
 func GetLocalIPFSID() *pstore.PeerInfo {
-	p, _ := Path()
-	dir := filepath.Join(p, ".ipfs", "config")
-	jsonData, err := ioutil.ReadFile(dir)
-	if err != nil {
-		err = errors.Wrap(err, "error Reading ipfs json config file")
-		log.Fatalf("%+v", err)
-	}
-	// Retrieve ipfs local id
-	Retriever := &IDRetriever{}
-	err = json.Unmarshal(jsonData, &Retriever)
-	if err != nil {
-		err = errors.Wrap(err, "error marshalling ID into json")
-		log.Fatalf("%+v", err)
-	}
+	// p, _ := Path()
+	// dir := filepath.Join(p, ".ipfs", "config")
+	// jsonData, err := ioutil.ReadFile(dir)
+	// if err != nil {
+	// 	err = errors.Wrap(err, "error Reading ipfs json config file")
+	// 	log.Fatalf("%+v", err)
+	// }
+	// // Retrieve ipfs local id
+	// Retriever := &IDRetriever{}
+	// err = json.Unmarshal(jsonData, &Retriever)
+	// if err != nil {
+	// 	err = errors.Wrap(err, "error marshalling ID into json")
+	// 	log.Fatalf("%+v", err)
+	// }
 	// Getting the swarm addrs local id
 	node, cancel := NewNodeInit()
 	defer cancel()

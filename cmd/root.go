@@ -61,9 +61,9 @@ func init() {
 
 	rootCmd.AddCommand(
 		UpFile(),
-		GetObject(),
-		FriendList(),
-		AddFriend(),
+		// GetObject(),
+		// FriendList(),
+		// AddFriend(),
 	)
 	fmt.Println("Init")
 }

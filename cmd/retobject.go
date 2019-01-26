@@ -16,11 +16,10 @@ package cmd
 
 import (
 	"fmt"
+	pstore "gx/ipfs/QmPiemjiKBC9VA7vZF82m4x1oygtg2c2YVqag8PX7dN1BD/go-libp2p-peerstore"
 	"io"
 	"os"
 	"path/filepath"
-
-	pstore "gx/ipfs/QmPiemjiKBC9VA7vZF82m4x1oygtg2c2YVqag8PX7dN1BD/go-libp2p-peerstore"
 
 	"github.com/ipfs/go-ipfs/core/coreapi"
 	d "github.com/moon004/p2p-sharer/debugs"
@@ -64,7 +63,7 @@ func retobject(cmd *cobra.Command, args []string) {
 	friendName, _ := cmd.Flags().GetString("friendName")
 	fileName, _ := cmd.Flags().GetString("fileName")
 	hash := args[0]
-	fmt.Println(friendName, hash)
+	fmt.Println(friendName, hash, fileName)
 
 	node, cancel := NewNodeLoader()
 	defer cancel() // cancel the ctx after operation is done
@@ -109,9 +108,4 @@ func retobject(cmd *cobra.Command, args []string) {
 		size, err := io.Copy(tmpFile, reader)
 		fmt.Printf("Size: %vbyte", size)
 	}
-
-	// path, err := iface.ParsePath(hash)
-	// d.OnError(err)
-
-	// commands.cat(ctx, api, )
 }

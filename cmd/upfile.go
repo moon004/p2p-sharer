@@ -28,7 +28,6 @@ import (
 	"github.com/moon004/p2p-sharer/tools"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 // UpFile represents the UpFile command
@@ -58,7 +57,9 @@ Examples:
 }
 
 func upfile(cmd *cobra.Command, args []string) {
-	MyInfo := viper.Get("local_id").(string)
+	fmt.Println("upfile")
+	// MyInfo := viper.Get("local_id").(string)
+	MyInfo := "myinfo"
 	fn, _ := cmd.Flags().GetString("filename")
 
 	node, cancel := NewNodeLoader()
