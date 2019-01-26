@@ -1,7 +1,6 @@
 package cnf
 
 import (
-	"context"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -9,8 +8,7 @@ import (
 	pstore "gx/ipfs/QmPiemjiKBC9VA7vZF82m4x1oygtg2c2YVqag8PX7dN1BD/go-libp2p-peerstore"
 	"gx/ipfs/QmWGm4AbZEbnmdgVTza52MSNpEmBdFVqzmAysRbjrRyGbH/go-ipfs-cmds"
 
-	"github.com/ipfs/go-ipfs/core"
-	"github.com/ipfs/go-ipfs/core/coreapi"
+	api "github.com/ipfs/go-ipfs-api"
 	"github.com/ipfs/go-ipfs/repo/fsrepo"
 	homedir "github.com/mitchellh/go-homedir"
 	d "github.com/moon004/p2p-sharer/debugs"
@@ -23,13 +21,13 @@ import (
 
 // ConfigStruct the structure of Config File (yaml)
 type ConfigStruct struct {
-	// UserLocalID *pstore.PeerInfo `yaml:"local_id"`
-	IpfsConFile string       `yaml:"ipfs_config_path"`
-	P2pConFile  string       `yaml:"p2p_config_file"`
-	Version     string       `yaml:"version"`
-	Friends     []FriendList `yaml:"friend_list"`
-	Verbose     bool         `yaml:"verbose"`
-	Debug       bool         `yaml:"debug"`
+	UserLocalID *api.IdOutput `yaml:"local_id"`
+	IpfsConFile string        `yaml:"ipfs_config_path"`
+	P2pConFile  string        `yaml:"p2p_config_file"`
+	Version     string        `yaml:"version"`
+	Friends     []FriendList  `yaml:"friend_list"`
+	Verbose     bool          `yaml:"verbose"`
+	Debug       bool          `yaml:"debug"`
 }
 
 type FriendList map[string]pstore.PeerInfo
@@ -138,7 +136,7 @@ func (c *ConfigStruct) DefaultConfigValue() error {
 		Friends:     make([]FriendList, 0),
 		IpfsConFile: ipfsFilePath,
 		P2pConFile:  c.ConfigFile(),
-		// UserLocalID: GetLocalIPFSID(),
+		UserLocalID: GetLocalIPFSID(),
 	}
 	err := defaultcnf.WriteToConfig()
 	err = errors.Wrap(err, "error writing default value to config")
@@ -156,55 +154,10 @@ type IDRetriever struct {
 }
 
 // GetLocalIPFSID is to get the local node ID
-func GetLocalIPFSID() *pstore.PeerInfo {
-	// p, _ := Path()
-	// dir := filepath.Join(p, ".ipfs", "config")
-	// jsonData, err := ioutil.ReadFile(dir)
-	// if err != nil {
-	// 	err = errors.Wrap(err, "error Reading ipfs json config file")
-	// 	log.Fatalf("%+v", err)
-	// }
-	// // Retrieve ipfs local id
-	// Retriever := &IDRetriever{}
-	// err = json.Unmarshal(jsonData, &Retriever)
-	// if err != nil {
-	// 	err = errors.Wrap(err, "error marshalling ID into json")
-	// 	log.Fatalf("%+v", err)
-	// }
+func GetLocalIPFSID() *api.IdOutput {
 	// Getting the swarm addrs local id
-	node, cancel := NewNodeInit()
-	defer cancel()
-	nodeCtx := node.Context()
-	api, err := coreapi.NewCoreAPI(node)
+	sh := api.NewLocalShell()
+	IDOutput, err := sh.ID()
 	d.OnError(err)
-
-	maddrs, err := api.Swarm().LocalAddrs(nodeCtx)
-	d.OnError(err)
-
-	PeerInfo, err := pstore.InfoFromP2pAddr(maddrs[0])
-	d.OnError(err)
-
-	return PeerInfo
-}
-
-// NewNodeInit initialize NewNode when creating config file
-func NewNodeInit() (*core.IpfsNode, context.CancelFunc) {
-	dur := tools.GetTimeout()
-	ctx, cancel := context.WithTimeout(context.Background(), dur)
-
-	// Invoke LoadPlugins to load plugins into our repo
-	//			"" means load New Plugins
-	_, err := ipfs.LoadPlugins("")
-	d.OnError(err)
-
-	configPath := IpfsConfDir()
-	repo, err := fsrepo.Open(configPath)
-	d.OnError(err)
-	cfg := &core.BuildCfg{
-		Repo: repo,
-	}
-	node, err := core.NewNode(ctx, cfg)
-	d.OnError(err)
-
-	return node, cancel
+	return IDOutput
 }
