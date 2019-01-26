@@ -17,7 +17,6 @@ package cmd
 import (
 	"fmt"
 
-	api "github.com/ipfs/go-ipfs-api"
 	"github.com/moon004/p2p-sharer/tools"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -26,7 +25,7 @@ import (
 // MyIdentity represents the UpFile command
 func MyIdentity() *cobra.Command {
 	var myidentityCmd = &cobra.Command{
-		Use:   "upfile",
+		Use:   "myidentity",
 		Short: "Add and provide your file to the network",
 		Long: `Add the file to your local node and provide (publish) the file
 to the network so that other nodes are able to retrieve it.
@@ -45,8 +44,10 @@ Examples:
 }
 
 func myidentity() {
-	MyInfo := viper.Get("local_id").(*api.IdOutput)
-	fmt.Printf(
-		"Your IPFS ID: %s\n Your friends/peers can connect to you via any of these addresses:\n %s",
-		MyInfo.ID, MyInfo.Addresses)
+	MyInfo := viper.Get("local_id").(map[string]interface{})
+	fmt.Printf("Your IPFS ID: %s\n", MyInfo["id"])
+	fmt.Println("Your friends/peers can connect to you via any of these addresses:")
+	for _, addrs := range MyInfo["addresses"].([]interface{}) {
+		fmt.Printf("%s\n", addrs)
+	}
 }
