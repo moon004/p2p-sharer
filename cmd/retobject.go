@@ -15,16 +15,13 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	pstore "gx/ipfs/QmPiemjiKBC9VA7vZF82m4x1oygtg2c2YVqag8PX7dN1BD/go-libp2p-peerstore"
-	"io"
-	"os"
 	"path/filepath"
 
-	"github.com/ipfs/go-ipfs/core/coreapi"
 	d "github.com/moon004/p2p-sharer/debugs"
 	"github.com/moon004/p2p-sharer/friend"
-	"github.com/moon004/p2p-sharer/ipfs"
 	"github.com/moon004/p2p-sharer/tools"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -35,11 +32,12 @@ func GetObject() *cobra.Command {
 	var getobject = &cobra.Command{
 		Use:   "retobject",
 		Short: "Retrieve file from peers",
-		Long: `Retrieve file from peers and save to local directory
+		Long: `Retrieve file from peers and save to local directory.
+Make sure to add him/her as friend before retrieve the file.
 
 Examples:
 	
-	` + tools.Args0() + ` retobject QmSgc9oPMqBppGyM3TWc7NZF11bwH8o3CDekd6pAYGJF8X -p <Peers Info>`,
+	` + tools.Args0() + ` retobject QmSgc9oPMqBppGyM3TWc7NZF11bwH8o3CDekd6pAYGJF8X -n "Siang Hwa"`,
 
 		Args: cobra.ExactArgs(1),
 
@@ -65,18 +63,16 @@ func retobject(cmd *cobra.Command, args []string) {
 	hash := args[0]
 	fmt.Println(friendName, hash, fileName)
 
-	node, cancel := NewNodeLoader()
-	defer cancel() // cancel the ctx after operation is done
-	nodeCtx := node.Context()
 	/*
 		1. if got provide friendName, find friendName in config file
 		2. if provided friendName but cant find == Not Provided == Dont Have
 		3. if Dont Have, just dht findprovs, and connect and get <hash>
 		4. If findprovs empty, just get <hash>
-		5. if Have PeerID, connect and get <hash>
+		5. if Have PeerID, connect, get <hash>, and cat it
 	*/
 	var PeerInfo pstore.PeerInfo
-	// if -n is not empty
+	sh := NewIpfsAPI()
+	// if -n is NOT empty
 	if friendName != "" {
 		// Acquire the friend's Peer's ID
 		var f friend.FList
@@ -88,24 +84,17 @@ func retobject(cmd *cobra.Command, args []string) {
 			err := errors.Errorf("You have no such friend: %s", friendName)
 			d.OnError(err) // stop program here and show error
 		}
-		// Do step 5.
-		api, err := coreapi.NewCoreAPI(node)
+		// Do step 5.																							// 1 minute
+		ctx, cancel := context.WithTimeout(context.Background(), tools.GetTimeout())
+		defer cancel()
+		err := sh.SwarmConnect(ctx)
 		d.OnError(err)
-
-		err = api.Swarm().Connect(nodeCtx, PeerInfo)
-		d.OnError(err)
-
-		reader, _, err := ipfs.Cat(nodeCtx, api, hash, 0, -1)
-		d.OnError(err)
-
-		// Output to .p2p-sharer/storage
-		p2pPath, _ := viper.Get("p2p_config_file").(string)
-		dir, _ := filepath.Split(p2pPath)
-		filePath := filepath.Join(dir, fileName)
-		tmpFile, err := os.Create(filePath)
-		d.OnError(err)
-
-		size, err := io.Copy(tmpFile, reader)
-		fmt.Printf("Size: %vbyte", size)
 	}
+	// Output to .p2p-sharer/storage
+	p2pPath, _ := viper.Get("p2p_config_file").(string)
+	dir, _ := filepath.Split(p2pPath) // dir == ../.p2p-sharer
+	filePath := filepath.Join(dir, "storage", fileName)
+	err := sh.Get(hash, filePath)
+	d.OnError(err)
+
 }

@@ -15,19 +15,15 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"os"
 
-	"github.com/ipfs/go-ipfs/core"
-	"github.com/ipfs/go-ipfs/core/coreapi"
-	"github.com/ipfs/go-ipfs/core/coreapi/interface"
-	"github.com/ipfs/go-ipfs/core/coreunix"
-	"github.com/moon004/p2p-sharer/cnf"
+	api "github.com/ipfs/go-ipfs-api"
 	d "github.com/moon004/p2p-sharer/debugs"
 	"github.com/moon004/p2p-sharer/tools"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // UpFile represents the UpFile command
@@ -58,39 +54,34 @@ Examples:
 
 func upfile(cmd *cobra.Command, args []string) {
 	fmt.Println("upfile")
-	// MyInfo := viper.Get("local_id").(string)
-	MyInfo := "myinfo"
+	MyInfo := viper.Get("local_id").(*api.IdOutput)
 	fn, _ := cmd.Flags().GetString("filename")
 
-	node, cancel := NewNodeLoader()
-	defer cancel()
-	nodeCtx := node.Context()
+	sh := NewIpfsAPI()
 
-	hashPath := AddFile(node, fn)
-
-	api, err := coreapi.NewCoreAPI(node)
+	file, err := os.Open(fn)
 	d.OnError(err)
 
-	err = api.Dht().Provide(nodeCtx, hashPath)
+	hash, err := sh.Add(file)
 	d.OnError(err)
 
-	fmt.Printf("%s is up! with hash %s\n", fn, hashPath)
+	fmt.Printf("%s is up! with hash %s\n", fn, hash)
 	fmt.Printf("Peers are able to retrieve the file by:\n %s retobject %s -p %s \n",
-		tools.Args0(), hashPath, MyInfo)
+		tools.Args0(), hash, MyInfo.Addresses[0])
 }
 
 // AddFile just add local file to local node and pin it
-func AddFile(node *core.IpfsNode, file string) iface.Path {
-	ctx, cancel := context.WithTimeout(context.Background(), cnf.Timeout)
-	defer cancel()
-	f, err := os.Open(file)
-	d.OnError(err)
+// func AddFile(node *core.IpfsNode, file string) iface.Path {
+// 	ctx, cancel := context.WithTimeout(context.Background(), cnf.Timeout)
+// 	defer cancel()
+// 	f, err := os.Open(file)
+// 	d.OnError(err)
 
-	hash, err := coreunix.AddWithContext(ctx, node, f)
-	d.OnError(err)
+// 	hash, err := coreunix.AddWithContext(ctx, node, f)
+// 	d.OnError(err)
 
-	hashPath, err := iface.ParsePath(hash)
-	d.OnError(err)
+// 	hashPath, err := iface.ParsePath(hash)
+// 	d.OnError(err)
 
-	return hashPath
-}
+// 	return hashPath
+// }
