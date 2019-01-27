@@ -24,7 +24,7 @@ type ConfigStruct struct {
 	IpfsConFile string        `yaml:"ipfs_config_path"`
 	P2pConFile  string        `yaml:"p2p_config_file"`
 	Version     string        `yaml:"version"`
-	Friends     []Friend      `yaml:"friend_list"`
+	Friends     Friend        `yaml:"friend_list"`
 	Verbose     bool          `yaml:"verbose"`
 	Debug       bool          `yaml:"debug"`
 }
@@ -41,27 +41,37 @@ func (c *ConfigStruct) Reload() error {
 	}
 
 	if err = yaml.Unmarshal(content, c); err != nil {
-		return errors.Wrap(err, "Unmarshal Failed")
+		return errors.Wrap(err, "Unmarshal failed")
 	}
 
 	return nil
 }
 
-//AddFriend append the new friend list and save in the config file
-func (c *ConfigStruct) AddFriend(f Friend) error {
+//AddFriend adds the new friend new as map[name]ID and save in the config file
+func (c *ConfigStruct) AddFriend(name, ID string) error {
 	// get the old friend list
 	err := c.Reload()
 	if err != nil {
 		return errors.Wrap(err, "error reloading")
 	}
-	// append with a whole new set of NewFriendList
-	c.Friends = append(c.Friends, f)
+	// add the  new set of NewFriendList
+	c.Friends[name] = ID
 	err = c.WriteToConfig()
 	if err != nil {
 		return errors.Wrap(err, "error writing to config")
 	}
 
 	return nil
+}
+
+// GetFList returns the FList struct
+func (c *ConfigStruct) GetFList() (Friend, error) {
+	err := c.Reload()
+	if err != nil {
+		return nil, err
+	}
+
+	return c.Friends, nil
 }
 
 // WriteToConfig update the p2p-sharer config file
@@ -150,7 +160,7 @@ func (c *ConfigStruct) DefaultConfigValue() error {
 		Version:     BaseVersion,
 		Verbose:     false,
 		Debug:       false,
-		Friends:     make([]Friend, 0),
+		Friends:     make(Friend, 0),
 		IpfsConFile: ipfsFilePath,
 		P2pConFile:  c.ConfigFile(),
 		UserLocalID: GetLocalIPFSID(),
