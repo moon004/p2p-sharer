@@ -32,7 +32,7 @@ func AddFriend() *cobra.Command {
 		Long: `Add your IPFS peers as friend by linking their peer's ID to your own respective naming.
 
 Example:
-	` + tools.Args0() + ` Qma1dYuhcKgaUP5nooYaHUTQR3phBm6igbbDt9V6Viqo1z 'Friend's name'`,
+	` + tools.Args0() + ` addfriend <peer's identity> <friend's name>`,
 
 		Args: cobra.ExactArgs(2),
 
@@ -48,18 +48,18 @@ func addfriend(cmd *cobra.Command, args []string) {
 	friendName := args[1]
 
 	fmt.Println(friendID, friendName)
-
-	var friend cnf.Friend
-	var cfgStruct cnf.ConfigStruct
 	// regex check for name and Addresses
 	strInput, _ := tools.Regex("string input")
 	ipfsHash, _ := tools.Regex("ipfs address")
 
-	if strInput.MatchString(friendName) && ipfsHash.MatchString(friendID) {
-		friend[friendName] = friendID
-		err := cfgStruct.AddFriend(friend)
-		d.OnError(err)
-	} else {
-		d.OnError(errors.New("Invalid friend name format or invalid ipfs hash"))
+	switch {
+	case !strInput.MatchString(friendName):
+		d.OnError(errors.New("Invalid friend name format, try other name"))
+	case !ipfsHash.MatchString(friendID):
+		d.OnError(errors.New("Invalid friend ID"))
 	}
+
+	var cfgStruct cnf.ConfigStruct
+	err := cfgStruct.AddFriend(friendName, friendID)
+	d.OnError(err)
 }

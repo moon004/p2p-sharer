@@ -16,7 +16,10 @@ package cmd
 
 import (
 	"fmt"
+	"reflect"
 
+	"github.com/moon004/p2p-sharer/cnf"
+	d "github.com/moon004/p2p-sharer/debugs"
 	"github.com/moon004/p2p-sharer/tools"
 	"github.com/spf13/cobra"
 )
@@ -31,8 +34,21 @@ func FriendList() *cobra.Command {
 Example:
 	` + tools.Args0() + ` friendlist`,
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("friendlist called")
+			friendlist()
 		},
 	}
 	return friendlistCmd
+}
+
+func friendlist() {
+	var cfgStruct cnf.ConfigStruct
+
+	flist, err := cfgStruct.GetFList()
+	d.OnError(err)
+	keys := reflect.ValueOf(flist).MapKeys()
+
+	fmt.Printf("\nYour friend list:\n\n")
+	for i, fname := range keys {
+		fmt.Printf("%v. %v\n", i+1, fname)
+	}
 }

@@ -20,7 +20,13 @@ var (
 		Long: `
 This CLI allows you to transfer your local file to your peers via IPFS protocol
 Also it enables you to add your peers to your friend list and make consequent
-file transfer more easy and faster.`,
+file transfer more easy and faster.
+
+IMPORTANT!!
+
+Make sure you host your own node by running before using any of the command:
+
+	'ipfs daemon'`,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			startTime = time.Now()
 		},
@@ -38,7 +44,6 @@ file transfer more easy and faster.`,
 var Verbose bool
 
 func Execute() {
-	fmt.Println("Execute")
 	err := rootCmd.Execute()
 	if err != nil {
 		os.Exit(1)
@@ -62,11 +67,9 @@ func init() {
 		AddFriend(),
 		MyIdentity(),
 	)
-	fmt.Println("Init")
 }
 
 func initConfig() {
-	fmt.Println("initConfig")
 	configFile := cnf.ConfigStruct{}
 	file := configFile.ConfigFile()
 	viper.SetConfigType("yaml")

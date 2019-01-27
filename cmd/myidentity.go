@@ -25,14 +25,12 @@ import (
 // MyIdentity represents the UpFile command
 func MyIdentity() *cobra.Command {
 	var myidentityCmd = &cobra.Command{
-		Use:   "myidentity",
-		Short: "Add and provide your file to the network",
-		Long: `Add the file to your local node and provide (publish) the file
-to the network so that other nodes are able to retrieve it.
-
+		Use:   "myid",
+		Short: "Your local node identity",
+		Long: `Share your identity to your other peers so that
+they could add you as friend.
 Examples:
-	
-	` + tools.Args0() + ` -f Example.pdf`,
+	` + tools.Args0() + ` myid`,
 		Run: func(cmd *cobra.Command, args []string) {
 			myidentity()
 		},
@@ -45,8 +43,8 @@ Examples:
 
 func myidentity() {
 	MyInfo := viper.Get("local_id").(map[string]interface{})
-	fmt.Printf("Your IPFS ID: %s\n", MyInfo["id"])
-	fmt.Println("Your friends/peers can connect to you via any of these addresses:")
+	fmt.Printf("Your IPFS ID: %s\n\n", MyInfo["id"])
+	fmt.Println("Your friends/peers can add you as friend via any of these addresses:")
 	for _, addrs := range MyInfo["addresses"].([]interface{}) {
 		fmt.Printf("%s\n", addrs)
 	}
