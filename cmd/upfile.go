@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"os"
 
-	api "github.com/ipfs/go-ipfs-api"
 	d "github.com/moon004/p2p-sharer/debugs"
 	"github.com/moon004/p2p-sharer/tools"
 	"github.com/pkg/errors"
@@ -36,7 +35,7 @@ to the network so that other nodes are able to retrieve it.
 
 Examples:
 	
-	` + tools.Args0() + ` -f Example.pdf`,
+	` + tools.Args0() + ` upfile -f Example.pdf`,
 		Run: func(cmd *cobra.Command, args []string) {
 			allflags := cmd.Flags()
 			if allflags.Changed("filename") == false {
@@ -53,8 +52,7 @@ Examples:
 }
 
 func upfile(cmd *cobra.Command, args []string) {
-	fmt.Println("upfile")
-	MyInfo := viper.Get("local_id").(*api.IdOutput)
+	MyInfo := viper.Get("local_id").(map[string]interface{})
 	fn, _ := cmd.Flags().GetString("filename")
 
 	sh := NewIpfsAPI()
@@ -65,9 +63,9 @@ func upfile(cmd *cobra.Command, args []string) {
 	hash, err := sh.Add(file)
 	d.OnError(err)
 
-	fmt.Printf("%s is up! with hash %s\n", fn, hash)
-	fmt.Printf("Peers are able to retrieve the file by:\n %s retobject %s -p %s \n",
-		tools.Args0(), hash, MyInfo.Addresses[0])
+	fmt.Printf("%s is up! with hash %s\n\n", fn, hash)
+	fmt.Printf("Peers are able to retrieve the file by:\n\n%s retobject %s -n %s \n",
+		tools.Args0(), hash, MyInfo["addresses"].([]interface{})[0])
 }
 
 // AddFile just add local file to local node and pin it
