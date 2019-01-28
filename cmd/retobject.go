@@ -52,13 +52,13 @@ Examples:
 	}
 
 	getobject.Flags().SortFlags = false
-	getobject.Flags().StringP("friendName", "n", "", "Receiver's ID")
-	getobject.Flags().StringP("fileName", "f", "", "The output filename (required)")
+	getobject.Flags().StringP("friendName", "n", "", "Added Friend's name")
+	getobject.Flags().StringP("fileName", "o", "", "The output filename (required)")
 	return getobject
 }
 
 func retobject(cmd *cobra.Command, args []string) {
-	friendName, _ := cmd.Flags().GetString("friendName")
+	friendName := args[1]
 	fileName, _ := cmd.Flags().GetString("fileName")
 	hash := args[0]
 	fmt.Println(friendName, hash, fileName)
