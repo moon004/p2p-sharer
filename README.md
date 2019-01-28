@@ -7,20 +7,15 @@ More than that, it also enables you to add your friend by linking your peers' ip
 ### Prerequisites
 You are required to download and install [ipfs](https://docs.ipfs.io/introduction/install/#installing-from-a-prebuilt-package), and host your own node by running ***ipfs daemon*** before running any command from p2p-sharer.
 
-### Milestone
+### Usage
+Add file:
+>p2p-sharer up "***file/directory name***"
 
-1. upfile (Finished)
+Add friend:
+>p2p-sharer addfriend "***peer's ID***" "***friend's name***"
 
-Add the file to your local node and publish it to the network so that your peers are able to retrieve it.
-
-2. retobject (Finished not yet tested) a.k.a ***retrieve object***
-
-Connect to your ipfs peers (added friends) and get the file from the hash.
-
-3. friend System(Finished)
-
-Add your peers as friends and refer them based on your naming.
-
+Retrieve Object from your added friends:
+>p2p-sharer retobject "***ipfs hash***" -n "***friend's name***" 
 
 ## Main Motivation
 
