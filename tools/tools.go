@@ -42,10 +42,11 @@ func Regex(option string) (*regexp.Regexp, error) {
 	case "ipfs hash":
 		return regexp.MustCompile(`Qm[a-zA-Z0-9]{44}`), nil
 	case "string input":
-		return regexp.MustCompile(`\w+`), nil
+		return regexp.MustCompile(`^\w[a-zA-Z0-9-_\s]+\w$`), nil
 	case "ipfs address":
 		return regexp.MustCompile(
-			`\/ip4\/\d+\.\d+\.\d+\.\d+\/tcp\/\d+\/ipfs\/Qm[a-zA-Z0-9]{44}`), nil
+			`\/ip4\/\d+\.\d+\.\d+\.\d+\/tcp\/\d+\/ipfs\/Qm[a-zA-Z0-9]{44}`,
+		), nil
 	default:
 		return nil, errors.New("invalid option")
 	}

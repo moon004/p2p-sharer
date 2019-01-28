@@ -17,10 +17,11 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"os"
 	"path/filepath"
 
+	"github.com/moon004/p2p-sharer/cnf"
 	d "github.com/moon004/p2p-sharer/debugs"
-	"github.com/moon004/p2p-sharer/friend"
 	"github.com/moon004/p2p-sharer/tools"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -51,7 +52,7 @@ Examples:
 	}
 
 	getobject.Flags().SortFlags = false
-	getobject.Flags().StringP("friendName", "n", "", "Receiver's ID (required)")
+	getobject.Flags().StringP("friendName", "n", "", "Receiver's ID")
 	getobject.Flags().StringP("fileName", "f", "", "The output filename (required)")
 	return getobject
 }
@@ -61,22 +62,21 @@ func retobject(cmd *cobra.Command, args []string) {
 	fileName, _ := cmd.Flags().GetString("fileName")
 	hash := args[0]
 	fmt.Println(friendName, hash, fileName)
-
 	/*
 		1. if got provide friendName, find friendName in config file
 		2. if provided friendName but cant find == Not Provided == Dont Have
 		3. if Dont Have, just dht findprovs, and connect and get <hash>
 		4. If findprovs empty, just get <hash>
-		5. if Have PeerID, connect, get <hash>, and cat it
+		5. if Have PeerID, Connect to it
 	*/
-	var PeerInfo string
 	sh := NewIpfsAPI()
 	// if -n is NOT empty
 	if friendName != "" {
 		// Acquire the friend's Peer's ID
-		var f friend.FList
-		Flist := f.GetFList()
-		PeerInfo = Flist.Friends[friendName]
+		var c cnf.ConfigStruct
+		Flist, err := c.GetFList()
+		d.OnError(err)
+		PeerInfo := Flist[friendName]
 
 		if PeerInfo == "" {
 			// Induce an error message
@@ -86,13 +86,18 @@ func retobject(cmd *cobra.Command, args []string) {
 		// Do step 5.																							// 1 minute
 		ctx, cancel := context.WithTimeout(context.Background(), tools.GetTimeout())
 		defer cancel()
-		err := sh.SwarmConnect(ctx)
+		err = sh.SwarmConnect(ctx, PeerInfo)
 		d.OnError(err)
 	}
 	// Output to .p2p-sharer/storage
 	p2pPath, _ := viper.Get("p2p_config_file").(string)
 	dir, _ := filepath.Split(p2pPath) // dir == ../.p2p-sharer
-	filePath := filepath.Join(dir, "storage", fileName)
+	filePath := filepath.Join(dir, "storage")
+	if _, err := os.Stat(filePath); err != nil && os.IsNotExist(err) {
+		// If not exists create it
+		os.Mkdir(filePath, 0644)
+	}
+	filePath = filepath.Join(filePath, fileName)
 	err := sh.Get(hash, filePath)
 	d.OnError(err)
 
