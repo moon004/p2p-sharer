@@ -86,25 +86,3 @@ func initConfig() {
 func NewIpfsAPI() *api.Shell {
 	return api.NewLocalShell()
 }
-
-// NewNodeLoader returns an ipfs node and the context cancel function
-// func NewNodeLoader() (*core.IpfsNode, context.CancelFunc) {
-// 	dur := tools.GetTimeout()
-// 	ctx, cancel := context.WithTimeout(context.Background(), dur)
-
-// 	// Invoke LoadPlugins to load plugins into our repo
-// 	//			"" means load New Plugins
-// 	_, err := ipfs.LoadPlugins("")
-// 	d.OnError(err)
-
-// 	configPath := cnf.IpfsConfDir()
-// 	repo, err := fsrepo.Open(configPath)
-// 	d.OnError(err)
-// 	cfg := &core.BuildCfg{
-// 		Repo: repo,
-// 	}
-// 	node, err := core.NewNode(ctx, cfg)
-// 	d.OnError(err)
-
-// 	return node, cancel
-// }

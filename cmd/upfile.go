@@ -17,49 +17,54 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	d "github.com/moon004/p2p-sharer/debugs"
 	"github.com/moon004/p2p-sharer/tools"
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
 // UpFile represents the UpFile command
 func UpFile() *cobra.Command {
-	var upfileCmd = &cobra.Command{
-		Use:   "upfile",
-		Short: "Add and provide your file to the network",
-		Long: `Add the file to your local node and provide (publish) the file
+	var upCmd = &cobra.Command{
+		Use:   "up",
+		Short: "Add and provide your file or directory to the network",
+		Long: `Add the file or directory to your local node and provide (publish) the file
 to the network so that other nodes are able to retrieve it.
 
 Examples:
 	
-	` + tools.Args0() + ` upfile -f Example.pdf`,
+	` + tools.Args0() + ` up -i Example.pdf`,
+		Args: cobra.ExactArgs(1),
+
 		Run: func(cmd *cobra.Command, args []string) {
-			allflags := cmd.Flags()
-			if allflags.Changed("filename") == false {
-				d.OnError(errors.New("Must provide value for all the required flag"))
-				return
-			}
-			upfile(cmd, args)
+			up(cmd, args)
 		},
 	}
 
-	upfileCmd.Flags().SortFlags = false
-	upfileCmd.Flags().StringP("filename", "f", "", "Name of the file to upload (required)")
-	return upfileCmd
+	return upCmd
 }
 
-func upfile(cmd *cobra.Command, args []string) {
-	fn, _ := cmd.Flags().GetString("filename")
-
+func up(cmd *cobra.Command, args []string) {
+	fn := args[0]
+	var hash string
 	sh := NewIpfsAPI()
-
-	file, err := os.Open(fn)
+	currentDir, err := os.Getwd()
+	d.OnError(err)
+	TheDir := filepath.Join(currentDir, fn)
+	fInfo, err := os.Stat(TheDir)
 	d.OnError(err)
 
-	hash, err := sh.Add(file)
-	d.OnError(err)
+	if fInfo.IsDir() {
+		hash, err = sh.AddDir(TheDir)
+		d.OnError(err)
+
+	} else {
+		file, err := os.Open(fn)
+		d.OnError(err)
+		hash, err = sh.Add(file)
+		d.OnError(err)
+	}
 
 	fmt.Printf("%s is up! with hash %s\n\n", fn, hash)
 	fmt.Printf("Peers are able to retrieve the file by:\n\n%s retobject %s -n <name> -f %s\n",

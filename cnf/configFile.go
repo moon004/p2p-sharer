@@ -26,6 +26,7 @@ type ConfigStruct struct {
 	Version     string        `yaml:"version"`
 	Friends     Friend        `yaml:"friend_list"`
 	Verbose     bool          `yaml:"verbose"`
+	Timeout     uint          `yaml:"timeout"`
 	Debug       bool          `yaml:"debug"`
 }
 
@@ -160,6 +161,7 @@ func (c *ConfigStruct) DefaultConfigValue() error {
 		Version:     BaseVersion,
 		Verbose:     false,
 		Debug:       false,
+		Timeout:     120,
 		Friends:     make(Friend, 0),
 		IpfsConFile: ipfsFilePath,
 		P2pConFile:  c.ConfigFile(),

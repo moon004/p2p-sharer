@@ -83,7 +83,7 @@ func retobject(cmd *cobra.Command, args []string) {
 			err := errors.Errorf("You have no such friend: %s", friendName)
 			d.OnError(err) // stop program here and show error
 		}
-		// Do step 5.																							// 1 minute
+		// Do step 5.																							// 2 minutes
 		ctx, cancel := context.WithTimeout(context.Background(), tools.GetTimeout())
 		defer cancel()
 		err = sh.SwarmConnect(ctx, PeerInfo)
