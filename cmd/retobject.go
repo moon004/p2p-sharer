@@ -16,7 +16,6 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -37,9 +36,9 @@ Make sure to add him/her as friend before retrieve the file.
 
 Examples:
 	
-	` + tools.Args0() + ` retobject QmSgc9oPMqBppGyM3TWc7NZF11bwH8o3CDekd6pAYGJF8X -n "Siang Hwa"`,
+	` + tools.Args0() + ` retobject QmSgc9oPMqBppGyM3TWc7NZF11bwH8o3CDekd6pAYGJF8X "Siang Hwa" -o "Avengers.MP4"`,
 
-		Args: cobra.ExactArgs(1),
+		Args: cobra.ExactArgs(2),
 
 		Run: func(cmd *cobra.Command, args []string) {
 			allflags := cmd.Flags()
@@ -52,7 +51,6 @@ Examples:
 	}
 
 	getobject.Flags().SortFlags = false
-	getobject.Flags().StringP("friendName", "n", "", "Added Friend's name")
 	getobject.Flags().StringP("fileName", "o", "", "The output filename (required)")
 	return getobject
 }
@@ -61,7 +59,10 @@ func retobject(cmd *cobra.Command, args []string) {
 	friendName := args[1]
 	fileName, _ := cmd.Flags().GetString("fileName")
 	hash := args[0]
-	fmt.Println(friendName, hash, fileName)
+	regHash, _ := tools.Regex("ipfs hash")
+	if !regHash.MatchString(hash) {
+		d.OnError(errors.New("Invalid hash format"))
+	}
 	/*
 		1. if got provide friendName, find friendName in config file
 		2. if provided friendName but cant find == Not Provided == Dont Have

@@ -7,8 +7,10 @@ import (
 	"time"
 
 	api "github.com/ipfs/go-ipfs-api"
+	"github.com/ipfs/go-ipfs/repo/fsrepo"
 	"github.com/moon004/p2p-sharer/cnf"
 	d "github.com/moon004/p2p-sharer/debugs"
+	"github.com/moon004/p2p-sharer/ipfs"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -29,6 +31,7 @@ Make sure you host your own node by running before using any of the command:
 	'ipfs daemon'`,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			startTime = time.Now()
+			RunningDaemon()
 		},
 		PersistentPostRun: func(cmd *cobra.Command, args []string) {
 			if viper.GetBool("verbose") {
@@ -85,4 +88,17 @@ func initConfig() {
 // NewIpfsAPI returns ipfs api shell
 func NewIpfsAPI() *api.Shell {
 	return api.NewLocalShell()
+}
+
+// RunningDaemon fake an API call to check if daemon is running
+func RunningDaemon() {
+	_, err := ipfs.LoadPlugins("")
+	d.OnError(err)
+
+	configPath := cnf.IpfsConfDir()
+	_, err = fsrepo.Open(configPath)
+	if err == nil {
+		fmt.Printf("\nOops, remember to host your node by invoking:\n\n	ipfs daemon\n\n")
+		os.Exit(1)
+	}
 }

@@ -34,7 +34,7 @@ to the network so that other nodes are able to retrieve it.
 
 Examples:
 	
-	` + tools.Args0() + ` up -i Example.pdf`,
+	` + tools.Args0() + ` up Example.pdf`,
 		Args: cobra.ExactArgs(1),
 
 		Run: func(cmd *cobra.Command, args []string) {
@@ -66,8 +66,8 @@ func up(cmd *cobra.Command, args []string) {
 		d.OnError(err)
 	}
 
-	fmt.Printf("%s is up! with hash %s\n\n", fn, hash)
-	fmt.Printf("Peers are able to retrieve the file by:\n\n%s retobject %s -n <name> -f %s\n",
+	fmt.Printf("\n%s is up! with hash %s\n\n", fn, hash)
+	fmt.Printf("Peers are able to retrieve the file by:\n\n%s retobject %s <friend's name> -o %s\n",
 		tools.Args0(), hash, fn)
 }
 
