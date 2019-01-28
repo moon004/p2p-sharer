@@ -8,6 +8,8 @@ More than that, it also enables you to add your friend by linking your peers' ip
 You are required to download and install [ipfs](https://docs.ipfs.io/introduction/install/#installing-from-a-prebuilt-package), and host your own node by running ***ipfs daemon*** before running any command from p2p-sharer.
 
 ### Usage
+It is highly suggested that you add your swarm peers as friend before retrieving any item (files or directory) from them.
+
 Add file:
 >p2p-sharer up "***file/directory name***"
 
@@ -15,11 +17,13 @@ Add friend:
 >p2p-sharer addfriend "***peer's ID***" "***friend's name***"
 
 Retrieve Object from your added friends:
->p2p-sharer retobject "***ipfs hash***" -n "***friend's name***" -o "***output file name***"
+>p2p-sharer retobject "***ipfs hash***" "***friend's name***" -o "***output file name***"
 
 Get your own ipfs ID:
 >p2p-sharer myid
 
+List your added friends:
+>p2p-sharer friendlist
 
 ## Main Motivation
 
