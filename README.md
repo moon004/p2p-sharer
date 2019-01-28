@@ -15,7 +15,11 @@ Add friend:
 >p2p-sharer addfriend "***peer's ID***" "***friend's name***"
 
 Retrieve Object from your added friends:
->p2p-sharer retobject "***ipfs hash***" -n "***friend's name***" 
+>p2p-sharer retobject "***ipfs hash***" -n "***friend's name***"
+
+Get your own ipfs ID:
+>p2p-sharer myid
+
 
 ## Main Motivation
 
