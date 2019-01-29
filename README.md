@@ -7,6 +7,18 @@ More than that, it also enables you to add your friend by linking your peers' ip
 ### Prerequisites
 You are required to download and install [ipfs](https://docs.ipfs.io/introduction/install/#installing-from-a-prebuilt-package), and host your own node by running ***ipfs daemon*** before running any command from p2p-sharer.
 
+## Build from source
+Clone them:
+>git clone https://github.com/moon004/p2p-sharer.git
+
+Then build them, you must have [Go](https://golang.org/dl/) installed and build them:
+>go install
+
+Or you can get the binaries from this repo.
+- [Linux](https://github.com/moon004/p2p-sharer/blob/master/bin/linux/p2p-sharer)
+- [Windows](https://github.com/moon004/p2p-sharer/blob/master/bin/windows/p2p-sharer.exe)
+- [MacOS](https://github.com/moon004/p2p-sharer/blob/master/bin/macOS/p2p-sharer)
+
 ### Usage
 It is highly suggested that you add your swarm peers as friend before retrieving any item (files or directory) from them.
 
