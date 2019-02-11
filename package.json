@@ -8,6 +8,81 @@
       "hash": "QmNTCey11oxhb1AxDnQBRHtdhap6Ctud872NjAYPYYXPuc",
       "name": "go-multiaddr",
       "version": "1.4.0"
+    },
+    {
+      "author": "whyrusleeping",
+      "hash": "QmTQuFQWHAWy4wMH6ZyPfGiawA5u9T8rs79FENoV8yXaoS",
+      "name": "client_golang",
+      "version": "0.1.4"
+    },
+    {
+      "author": "ipfs",
+      "hash": "QmVMcMs6duiwLzvhF6xWM3yc4GgjpNoctKFhvtBch5tpgo",
+      "name": "go-metrics-prometheus",
+      "version": "0.3.11"
+    },
+    {
+      "author": "multiformats",
+      "hash": "QmZcLBXKaFe8ND5YHPkJRAwmhJGrVsi1JqDZNyJ4nRK5Mj",
+      "name": "go-multiaddr-net",
+      "version": "1.7.1"
+    },
+    {
+      "hash": "QmcuXC5cxs79ro2cUuHs4HQ2bkDLJUYokwL8aivcX6HW3C",
+      "name": "go-log",
+      "version": "1.5.8"
+    },
+    {
+      "author": "why",
+      "hash": "QmNkxFCmPtr2RQxjZNRCNryLud4L9wMEiBJsLgF14MqTHj",
+      "name": "go-bitswap",
+      "version": "1.1.13"
+    },
+    {
+      "author": "magik6k",
+      "hash": "QmXWZCd8jfaHmt4UDSnjKmGcrQMw95bDGWqEeVLVJjoANX",
+      "name": "go-ipfs-files",
+      "version": "2.0.3"
+    },
+    {
+      "hash": "QmWGm4AbZEbnmdgVTza52MSNpEmBdFVqzmAysRbjrRyGbH",
+      "name": "go-ipfs-cmds",
+      "version": "2.0.10"
+    },
+    {
+      "hash": "Qmde5VP1qUkyQXKCfmEUA7bP64V2HAptbJ7phuPp7jXWwg",
+      "name": "go-ipfs-cmdkit",
+      "version": "1.2.0"
+    },
+    {
+      "author": "magik6k",
+      "hash": "QmcRKBUqc2p3L1ZraoJjbXfs9E6xzvEuyK9iypb5RGwfsr",
+      "name": "go-ipfs-config",
+      "version": "0.2.24"
+    },
+    {
+      "author": "whyrusleeping",
+      "hash": "QmNohiVssaPw3KVLZik59DBVGTSm2dGvYT9eoXt5DQ36Yz",
+      "name": "go-ipfs-util",
+      "version": "1.2.9"
+    },
+    {
+      "author": "lgierth",
+      "hash": "QmQc7jbDUsxUJZyFJzxVrnrWeECCct6fErEpMqtjyWvCX8",
+      "name": "go-multiaddr-dns",
+      "version": "0.3.0"
+    },
+    {
+      "author": "whyrusleeping",
+      "hash": "QmWZnkipEJbsdUDhgTGBnKAN1iHM2WDMNqsXHyAuaAiCgo",
+      "name": "go-libp2p-loggables",
+      "version": "1.1.29"
+    },
+    {
+      "author": "Kubuxu",
+      "hash": "QmXuBJ7DR6k3rmUEKtvVMhwjmXDuJgXXPUt4LQXKBMsU93",
+      "name": "go-os-helper",
+      "version": "0.0.0"
     }
   ],
   "gxVersion": "0.14.0",
