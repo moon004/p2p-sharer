@@ -11,8 +11,21 @@ You are required to download and install [ipfs](https://docs.ipfs.io/introductio
 Clone them:
 >git clone https://github.com/moon004/p2p-sharer.git
 
-Then build them, you must have [Go](https://golang.org/dl/) installed and build them:
+Then build them, you must have [Go](https://golang.org/dl/) and [gx](https://github.com/whyrusleeping/gx) installed and build them:
+
+Get all the dependencies (Go and gx)
+>go mod download
+
+If that doesn't work, try:
+>go get ./...
+
+Then get gx dependencies by running:
+>gx install
+
+Then finally build them:
 >go install
+
+When it's done, you are able to use the CLI, see the guide below.
 
 Or you can get the binaries from this repo.
 - [Linux](https://github.com/moon004/p2p-sharer/blob/master/bin/linux/p2p-sharer)
@@ -36,6 +49,9 @@ Get your own ipfs ID:
 
 List your added friends:
 >p2p-sharer friendlist
+
+### Contribution
+Feel free to open any issues, p2p-sharer has been practically tested by the creator and it's working! It's a great file-sharing tools in an organization.
 
 ## Main Motivation
 
