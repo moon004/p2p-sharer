@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"gx/ipfs/QmWGm4AbZEbnmdgVTza52MSNpEmBdFVqzmAysRbjrRyGbH/go-ipfs-cmds"
+	cmds "gx/ipfs/QmR77mMvvh8mJBBWQmBfQBu8oD38NUN4KE9SL2gDgAQNc6/go-ipfs-cmds"
 
 	api "github.com/ipfs/go-ipfs-api"
 	"github.com/ipfs/go-ipfs/repo/fsrepo"
