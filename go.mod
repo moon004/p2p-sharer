@@ -17,11 +17,11 @@ require (
 	github.com/libp2p/go-libp2p-peer v2.4.0+incompatible // indirect
 	github.com/libp2p/go-libp2p-protocol v1.0.0 // indirect
 	github.com/libp2p/go-libp2p-pubsub v0.11.10 // indirect
-	github.com/mattn/go-colorable v0.0.9 // indirect
+	github.com/mattn/go-colorable v0.1.0 // indirect
 	github.com/mattn/go-isatty v0.0.4 // indirect
 	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1 // indirect
 	github.com/minio/sha256-simd v0.0.0-20190131020904-2d45a736cd16 // indirect
-	github.com/mitchellh/go-homedir v1.0.0
+	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mr-tron/base58 v1.1.0 // indirect
 	github.com/multiformats/go-multiaddr v1.4.0 // indirect
 	github.com/multiformats/go-multiaddr-dns v0.2.5 // indirect
